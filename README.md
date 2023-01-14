@@ -18,7 +18,7 @@ docker run -d --name tool -v $HOME:/root peccu/tool-in-docker
 ## Usage
 
 ```bash
-docker exec --entrypoint /usr/local/bin/bash tool
+docker exec -it tool /usr/local/bin/bash
 ```
 
 ## Installed tools
