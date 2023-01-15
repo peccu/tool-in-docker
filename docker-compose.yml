@@ -9,10 +9,10 @@ services:
       - /clip:/clip
     ports:
       - 8080:8080
-    working_dir: /root
+    # working_dir: /root
     # entrypoint: tail -f /dev/null
-    entrypoint: sleep infinity
-    stop_signal: SIGKILL
+    # entrypoint: sleep infinity
+    # stop_signal: SIGKILL
     restart: always
     # networks:
     #   - gitea
