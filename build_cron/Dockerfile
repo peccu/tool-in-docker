@@ -1,4 +1,4 @@
-FROM tool-in-docker_app:latest
+FROM peccu/tool-in-docker:latest
 
 RUN yum install -y crontabs \
         && yum clean all
