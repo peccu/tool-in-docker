@@ -7,10 +7,8 @@ When I use this container, I can use same toolset in various environment like WS
 ## Initialize
 
 ```bash
-# pull from docker hub
+# pull from docker hub (or you canuse github packages: ghcr.io/peccu/tool-in-docker)
 docker pull peccu/tool-in-docker
-# or from github packages
-docker pull ghcr.io/peccu/tool-in-docker
 # launch with home direcory
 docker run -d --name tool -v $HOME:/root peccu/tool-in-docker
 ```
