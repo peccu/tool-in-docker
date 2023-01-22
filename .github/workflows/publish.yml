@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - ansible
   release:
     types: [published]
 
