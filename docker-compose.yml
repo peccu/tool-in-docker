@@ -1,7 +1,8 @@
 version: '3'
 services:
   app:
-    build: build
+    # build: build
+    image: peccu/tool-in-docker:latest
     environment:
       - TOOLTYPE=tool
     volumes:
@@ -9,10 +10,10 @@ services:
       - /clip:/clip
     ports:
       - 8080:8080
-    working_dir: /root
+    # working_dir: /root
     # entrypoint: tail -f /dev/null
-    entrypoint: sleep infinity
-    stop_signal: SIGKILL
+    # entrypoint: sleep infinity
+    # stop_signal: SIGKILL
     restart: always
     # networks:
     #   - gitea

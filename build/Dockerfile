@@ -237,3 +237,9 @@ COPY --from=bin /usr/local/bin/cfn-skeleton /usr/local/bin/cfn-skeleton
 COPY --from=bin /usr/local/bin/cfn-format /usr/local/bin/cfn-format
 COPY --from=bin /usr/local/bin/jd /usr/local/bin/jd
 COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/zoxide
+
+STOPSIGNAL SIGKILL
+VOLUME ["/root"]
+WORKDIR /root
+ENTRYPOINT ["/usr/bin/sleep", "infinity"]
+# ENTRYPOINT ["/usr/local/bin/bash"]
