@@ -6,7 +6,7 @@ RUN yum update -y \
         && yum install -y make gcc tar gzip p7zip
 
 # install datamash
-ENV VER_datamash=1.7
+ENV VER_datamash=1.8
 RUN set -x && cd /tmp \
         && curl -LO http://ftp.gnu.org/gnu/datamash/datamash-${VER_datamash}.tar.gz \
         && tar xzf datamash-${VER_datamash}.tar.gz \
@@ -61,20 +61,20 @@ RUN cd /usr/local \
         && rm -rf ../ripgrep-*
 
 # install delta for git
-ENV VER_delta=0.7.1
+ENV VER_delta=0.15.1
 RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
         && tar xzf delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
         && mv delta-${VER_delta}-x86_64-unknown-linux-gnu/delta /usr/local/bin \
         && rm -rf delta-${VER_delta}-x86_64-unknown-linux-gnu*
 
 # install atuin
-ENV VER_atuin=v11.0.0
+ENV VER_atuin=v12.0.0
 RUN curl -LO https://github.com/ellie/atuin/releases/download/${VER_atuin}/atuin-${VER_atuin}-x86_64-unknown-linux-gnu.tar.gz \
         && tar xzf atuin-${VER_atuin}-x86_64-unknown-linux-gnu.tar.gz \
         && mv atuin-${VER_atuin}-x86_64-unknown-linux-gnu/atuin /usr/local/bin \
         && rm -rf atuin-${VER_atuin}-x86_64-unknown-linux-gnu*
 
-ENV VER_fzf=0.27.0
+ENV VER_fzf=0.37.0
 RUN curl -LO https://github.com/junegunn/fzf/releases/download/${VER_fzf}/fzf-${VER_fzf}-linux_amd64.tar.gz \
         && tar xzf fzf-${VER_fzf}-linux_amd64.tar.gz \
         && mv fzf /usr/local/bin \
@@ -86,25 +86,25 @@ RUN curl -LO https://github.com/BurntSushi/xsv/releases/download/${VER_xsv}/xsv-
         && mv xsv /usr/local/bin \
         && rm -rf xsv-${VER_xsv}-x86_64-unknown-linux-musl.tar.gz
 
-ENV VER_skim=v0.9.4
+ENV VER_skim=v0.10.2
 RUN curl -LO https://github.com/lotabout/skim/releases/download/${VER_skim}/skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz \
         && tar xzf skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz \
         && mv sk /usr/local/bin \
         && rm -rf skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz
 
-ENV VER_bat=v0.20.0
+ENV VER_bat=v0.22.1
 RUN curl -LO https://github.com/sharkdp/bat/releases/download/${VER_bat}/bat-${VER_bat}-x86_64-unknown-linux-musl.tar.gz \
         && tar xzf bat-${VER_bat}-x86_64-unknown-linux-musl.tar.gz \
         && mv bat-${VER_bat}-x86_64-unknown-linux-musl/bat /usr/local/bin \
         && rm -rf bat-${VER_bat}-x86_64-unknown-linux-musl bat-${VER_bat}-x86_64-unknown-linux-musl.tar.gz
 
-ENV VER_fd=v8.3.2
+ENV VER_fd=v8.6.0
 RUN curl -LO https://github.com/sharkdp/fd/releases/download/${VER_fd}/fd-${VER_fd}-x86_64-unknown-linux-musl.tar.gz \
         && tar xzf fd-${VER_fd}-x86_64-unknown-linux-musl.tar.gz \
         && mv fd-${VER_fd}-x86_64-unknown-linux-musl/fd /usr/local/bin \
         && rm -rf fd-${VER_fd}-x86_64-unknown-linux-musl fd-${VER_fd}-x86_64-unknown-linux-musl.tar.gz
 
-ENV VER_jless=v0.7.2
+ENV VER_jless=v0.8.0
 RUN curl -LO https://github.com/PaulJuliusMartinez/jless/releases/download/${VER_jless}/jless-${VER_jless}-x86_64-unknown-linux-gnu.zip \
         && 7za x jless-${VER_jless}-x86_64-unknown-linux-gnu.zip \
         && chmod +x jless \
@@ -154,7 +154,7 @@ RUN curl -LO https://github.com/awslabs/aws-cloudformation-template-formatter/re
         && mv cfn-format-${VER_cfn_format}_linux-amd64/cfn-format /usr/local/bin \
         && rm -rf cfn-format-${VER_cfn_format}_linux-amd64 cfn-format-${VER_cfn_format}_linux-amd64.zip
 
-ENV VER_zoxide=0.8.3
+ENV VER_zoxide=0.9.0
 RUN curl -LO https://github.com/ajeetdsouza/zoxide/releases/download/v${VER_zoxide}/zoxide-${VER_zoxide}-x86_64-unknown-linux-musl.tar.gz \
         && mkdir zoxide \
         && cd zoxide \
@@ -187,7 +187,8 @@ RUN amazon-linux-extras enable epel \
         bash-completion bash-completion-extras pv openssl bc nmap \
         python3 python3-pip \
         yum-utils \
-        whois bind-utils iputils procps zsh
+        whois bind-utils iputils procps zsh \
+        libevent
 
 # install q
 ENV VER_q=3.1.6
