@@ -33,7 +33,7 @@ ENV VER_tmux=3.3a
 # ncurses-devel is already installed for bash
 RUN yum install -y libevent-devel ncurses-devel gcc make bison pkg-config
 RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${VER_tmux}.tar.gz \
-        && tar tmux-${VER_tmux}.tar.gz \
+        && tar xf tmux-${VER_tmux}.tar.gz \
 	&& cd tmux-${VER_tmux} \
 	&& ./configure \
 	&& make \
