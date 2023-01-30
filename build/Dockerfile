@@ -86,7 +86,7 @@ RUN curl -LO https://github.com/BurntSushi/xsv/releases/download/${VER_xsv}/xsv-
         && mv xsv /usr/local/bin \
         && rm -rf xsv-${VER_xsv}-x86_64-unknown-linux-musl.tar.gz
 
-ENV VER_skim=v0.10.2
+ENV VER_skim=v0.9.4
 RUN curl -LO https://github.com/lotabout/skim/releases/download/${VER_skim}/skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz \
         && tar xzf skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz \
         && mv sk /usr/local/bin \
