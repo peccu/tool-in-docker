@@ -169,6 +169,12 @@ RUN curl -LO https://github.com/ajeetdsouza/zoxide/releases/download/v${VER_zoxi
         && cd .. \
         && rm -rf zoxide zoxide-${VER_zoxide}-x86_64-unknown-linux-musl.tar.gz
 
+# install Tailwind CSS Standalone CLI
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
+        && chmod +x tailwindcss-linux-x64 \
+        && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss \
+        && rm tailwindcss-linux-x64
+
 ##################################################
 FROM golang:latest as go
 ##################################################
@@ -256,6 +262,7 @@ COPY --from=bin /usr/local/bin/cfn-skeleton /usr/local/bin/cfn-skeleton
 COPY --from=bin /usr/local/bin/cfn-format /usr/local/bin/cfn-format
 COPY --from=bin /usr/local/bin/jd /usr/local/bin/jd
 COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/zoxide
+COPY --from=bin /usr/local/bin/tailwindcss /usr/local/bin/tailwindcss
 
 STOPSIGNAL SIGKILL
 VOLUME ["/root"]
