@@ -49,7 +49,7 @@ RUN amazon-linux-extras enable epel \
         && yum clean metadata && yum install -y epel-release \
         && yum update -y \
         && yum install -y \
-        tar p7zip gzip
+        tar p7zip gzip xz
 
 # install ripgrep
 ENV VER_RG=13.0.0
@@ -174,6 +174,14 @@ RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/downlo
         && chmod +x tailwindcss-linux-x64 \
         && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
 
+ENV VER_watchexec=1.21.0
+RUN curl -LO https://github.com/watchexec/watchexec/releases/download/v${VER_watchexec}/watchexec-${VER_watchexec}-x86_64-unknown-linux-musl.tar.xz \
+        && tar xf watchexec-${VER_watchexec}-x86_64-unknown-linux-musl.tar.xz \
+        && cd watchexec-${VER_watchexec}-x86_64-unknown-linux-musl \
+        && mv watchexec /usr/local/bin \
+        && cd .. \
+        && rm -rf watchexec-${VER_watchexec}-x86_64-unknown-linux-musl{,.tar.xz}
+
 ##################################################
 FROM golang:latest as go
 ##################################################
@@ -262,6 +270,7 @@ COPY --from=bin /usr/local/bin/cfn-format /usr/local/bin/cfn-format
 COPY --from=bin /usr/local/bin/jd /usr/local/bin/jd
 COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/zoxide
 COPY --from=bin /usr/local/bin/tailwindcss /usr/local/bin/tailwindcss
+COPY --from=bin /usr/local/bin/watchexec /usr/local/bin/watchexec
 
 STOPSIGNAL SIGKILL
 VOLUME ["/root"]
