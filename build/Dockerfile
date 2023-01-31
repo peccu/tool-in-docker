@@ -61,11 +61,17 @@ RUN cd /usr/local \
         && rm -rf ../ripgrep-*
 
 # install delta for git
-ENV VER_delta=0.15.1
-RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
-        && tar xzf delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
-        && mv delta-${VER_delta}-x86_64-unknown-linux-musl/delta /usr/local/bin \
-        && rm -rf delta-${VER_delta}-x86_64-unknown-linux-musl*
+ENV VER_delta=0.7.1
+RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
+        && tar xzf delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
+        && mv delta-${VER_delta}-x86_64-unknown-linux-gnu/delta /usr/local/bin \
+        && rm -rf delta-${VER_delta}-x86_64-unknown-linux-gnu*
+# some diff was broken
+# ENV VER_delta=0.15.1
+# RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
+#         && tar xzf delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
+#         && mv delta-${VER_delta}-x86_64-unknown-linux-musl/delta /usr/local/bin \
+#         && rm -rf delta-${VER_delta}-x86_64-unknown-linux-musl*
 
 # install atuin
 ENV VER_atuin=v12.0.0
