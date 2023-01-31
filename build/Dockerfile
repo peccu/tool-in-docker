@@ -34,11 +34,11 @@ ENV VER_tmux=3.3a
 RUN yum install -y libevent-devel ncurses-devel gcc make bison pkg-config
 RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${VER_tmux}.tar.gz \
         && tar xf tmux-${VER_tmux}.tar.gz \
-	&& cd tmux-${VER_tmux} \
-	&& ./configure \
-	&& make \
-	&& make install \
-	&& rm -rf tmux-${VER_tmux}{,.tar.gz}
+        && cd tmux-${VER_tmux} \
+        && ./configure \
+        && make \
+        && make install \
+        && rm -rf tmux-${VER_tmux}{,.tar.gz}
 
 ##################################################
 FROM amazon/aws-cli:latest as bin
