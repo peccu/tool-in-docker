@@ -172,8 +172,7 @@ RUN curl -LO https://github.com/ajeetdsouza/zoxide/releases/download/v${VER_zoxi
 # install Tailwind CSS Standalone CLI
 RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
         && chmod +x tailwindcss-linux-x64 \
-        && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss \
-        && rm tailwindcss-linux-x64
+        && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
 
 ##################################################
 FROM golang:latest as go
