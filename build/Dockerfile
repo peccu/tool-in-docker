@@ -194,6 +194,15 @@ RUN go install -v github.com/tokuhirom/git-xlsx-textconv@latest
 # RUN go install -v github.com/aws-cloudformation/rain/cmd/rain@main
 
 ##################################################
+FROM amazon/aws-cli:latest as rust
+##################################################
+
+RUN yum install -y gcc
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+RUN source /root/.cargo/env \
+    && cargo install the-way
+
+##################################################
 FROM amazon/aws-cli:latest
 ##################################################
 
@@ -251,6 +260,7 @@ COPY --from=build /usr/local/bin/tmux /usr/local/bin/tmux
 # copy from golang layer
 COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/git-xlsx-textconv
 # COPY --from=go /go/bin/rain /usr/local/bin/rain
+COPY --from=rust /root/.cargo/bin/the-way /usr/local/bin/the-way
 # copy from bin layer
 COPY --from=bin /usr/local/bin/rg /usr/local/bin/rg
 # delta for git
