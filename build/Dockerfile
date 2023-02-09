@@ -251,6 +251,7 @@ RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux
 RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 
 ## other branch's space
+RUN yum install -y emacs
 ## other branch's space
 
 # copy datamash from build layer
