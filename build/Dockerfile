@@ -255,33 +255,33 @@ RUN yum install -y emacs
 ## other branch's space
 
 # copy datamash from build layer
-COPY --from=build /usr/local/bin/datamash /usr/local/bin/datamash
-COPY --from=build /usr/local/bin/bash /usr/local/bin/bash
-COPY --from=build /usr/local/bin/tmux /usr/local/bin/tmux
+COPY --from=build /usr/local/bin/datamash /usr/local/bin/
+COPY --from=build /usr/local/bin/bash /usr/local/bin/
+COPY --from=build /usr/local/bin/tmux /usr/local/bin/
 # copy from golang layer
-COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/git-xlsx-textconv
+COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 # COPY --from=go /go/bin/rain /usr/local/bin/rain
-COPY --from=rust /root/.cargo/bin/the-way /usr/local/bin/the-way
+COPY --from=rust /root/.cargo/bin/the-way /usr/local/bin/
 # copy from bin layer
-COPY --from=bin /usr/local/bin/rg /usr/local/bin/rg
+COPY --from=bin /usr/local/bin/rg /usr/local/bin/
 # delta for git
-COPY --from=bin /usr/local/bin/delta /usr/local/bin/delta
-COPY --from=bin /usr/local/bin/atuin /usr/local/bin/atuin
+COPY --from=bin /usr/local/bin/delta /usr/local/bin/
+COPY --from=bin /usr/local/bin/atuin /usr/local/bin/
 # # copy fzf from bin layer
 # -> skim
-COPY --from=bin /usr/local/bin/fzf /usr/local/bin/fzf
-COPY --from=bin /usr/local/bin/xsv /usr/local/bin/xsv
-COPY --from=bin /usr/local/bin/sk /usr/local/bin/sk
-COPY --from=bin /usr/local/bin/bat /usr/local/bin/bat
-COPY --from=bin /usr/local/bin/fd /usr/local/bin/fd
-COPY --from=bin /usr/local/bin/jless /usr/local/bin/jless
-COPY --from=bin /usr/local/bin/rain /usr/local/bin/rain
-COPY --from=bin /usr/local/bin/cfn-skeleton /usr/local/bin/cfn-skeleton
-COPY --from=bin /usr/local/bin/cfn-format /usr/local/bin/cfn-format
-COPY --from=bin /usr/local/bin/jd /usr/local/bin/jd
-COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/zoxide
-COPY --from=bin /usr/local/bin/tailwindcss /usr/local/bin/tailwindcss
-COPY --from=bin /usr/local/bin/watchexec /usr/local/bin/watchexec
+COPY --from=bin /usr/local/bin/fzf /usr/local/bin/
+COPY --from=bin /usr/local/bin/xsv /usr/local/bin/
+COPY --from=bin /usr/local/bin/sk /usr/local/bin/
+COPY --from=bin /usr/local/bin/bat /usr/local/bin/
+COPY --from=bin /usr/local/bin/fd /usr/local/bin/
+COPY --from=bin /usr/local/bin/jless /usr/local/bin/
+COPY --from=bin /usr/local/bin/rain /usr/local/bin/
+COPY --from=bin /usr/local/bin/cfn-skeleton /usr/local/bin/
+COPY --from=bin /usr/local/bin/cfn-format /usr/local/bin/
+COPY --from=bin /usr/local/bin/jd /usr/local/bin/
+COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/
+COPY --from=bin /usr/local/bin/tailwindcss /usr/local/bin/
+COPY --from=bin /usr/local/bin/watchexec /usr/local/bin/
 
 STOPSIGNAL SIGKILL
 VOLUME ["/root"]
