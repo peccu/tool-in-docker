@@ -182,12 +182,15 @@ RUN curl -LO https://github.com/watchexec/watchexec/releases/download/v${VER_wat
         && cd .. \
         && rm -rf watchexec-${VER_watchexec}-x86_64-unknown-linux-musl{,.tar.xz}
 
+# https://github.com/adobe-fonts/source-han-sans/tree/release#otf
 RUN mkdir -p /usr/share/fonts/SourceHanSans-VF/ \
         && curl -Lo /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf \
         https://github.com/adobe-fonts/source-han-sans/raw/release/Variable/OTF/SourceHanSans-VF.otf
 
+# https://github.com/tonsky/FiraCode
 RUN mkdir -p /tmp/fonts \
-        && curl -LO $(curl -s https://api.github.com/repos/tonsky/FiraCode/releases/latest | jq -r '.assets[0]|.browser_download_url') \
+        && curl -LO $(curl -s https://api.github.com/repos/tonsky/FiraCode/releases/latest | grep browser_download_url | awk '{print $2}' | tr -d '"' ) \
+        && 7za x Fira_Code_*.zip \
         && mkdir -p /usr/share/fonts/FilaCode/ \
         && mv variable_ttf/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
 
