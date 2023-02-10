@@ -2,12 +2,27 @@ version: '3'
 services:
   app:
     # build: build
-    image: peccu/tool-in-docker:latest
+    image: peccu/tool-in-docker:emacs-x
     environment:
       - TOOLTYPE=tool
+      # X11
+      - DISPLAY
+      # Wayland
+      - WAYLAND_DISPLAY
+      - XDG_RUNTIME_DIR
+      # PulseAudio
+      - PULSE_SERVER
     volumes:
       - ~:/root
+      - /:/mnt/host
       - /clip:/clip
+      # X11
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      # Wayland and PulseAudio
+      - /mnt/wslg:/mnt/wslg
+      # vGPU
+      - /dev/dxg:/dev/dxg
+      - /usr/lib/wsl:/usr/lib/wsl
     ports:
       - 8080:8080
     # working_dir: /root
