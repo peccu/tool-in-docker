@@ -219,7 +219,7 @@ FROM amazon/aws-cli:latest
 RUN yum install -y \
         rpm-build \
         rpmdevtools \
-        git-core
+        git-core \
         && rpmdev-setuptree
 ADD emacs.spec.patch /aws/
 RUN git clone https://src.fedoraproject.org/rpms/emacs.git \
