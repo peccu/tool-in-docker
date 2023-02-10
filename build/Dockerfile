@@ -215,6 +215,23 @@ RUN source /root/.cargo/env \
     && cargo install the-way
 
 ## other branch's space
+FROM amazon/aws-cli:latest
+RUN yum install -y \
+        rpm-build \
+        rpmdevtools \
+        git-core
+        && rpmdev-setuptree
+ADD emacs.spec.patch /aws/
+RUN git clone https://src.fedoraproject.org/rpms/emacs.git \
+        && cp ./* /root/rpmbuild/SOURCES/ \
+        && cd /root/rpmbuild/SOURCES/ \
+        && patch < /aws/emacs.spec.patch \
+        && mv emacs.spec ../SPECS/ \
+        && cd .. \
+        && spectool -g -R SPECS/emacs.spec \
+        && sed -ni.bak '/^%changelog/q;p' SPECS/emacs.spec \
+        && yum install -y $(rpmbuild -bb SPECS/emacs.spec 2>&1 | grep 'is needed by' | awk '{print $1}')
+        # && rpmbuild -bb SPECS/emacs.spec
 ## other branch's space
 
 ##################################################
@@ -305,6 +322,7 @@ RUN fc-cache -fv && fc-list
 
 # for vGPU container
 ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
+RUN yum install -y mesa-libGLw
 ## other branch's space
 
 STOPSIGNAL SIGKILL

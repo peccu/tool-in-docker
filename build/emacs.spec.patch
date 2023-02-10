@@ -1,0 +1,20 @@
+diff --git a/emacs.spec b/emacs.spec
+index 321be78..38e57fe 100644
+--- a/emacs.spec
++++ b/emacs.spec
+@@ -78,6 +78,6 @@ BuildRequires: systemd-devel
+ BuildRequires: libgccjit-devel
+
+ BuildRequires: gtk3-devel
+-BuildRequires: webkit2gtk3-devel
++BuildRequires: webkitgtk4-devel
+
+ BuildRequires: gnupg2
+@@ -161,6 +161,5 @@ License:       GPLv3+ and GFDL and BSD
+ Requires(preun): %{_sbindir}/alternatives
+ Requires(posttrans): %{_sbindir}/alternatives
+ Requires:      %{name}-filesystem = %{epoch}:%{version}-%{release}
+-Recommends:    enchant2
+ Provides:      %{name}-el = %{epoch}:%{version}-%{release}
+ Obsoletes:     emacs-el < 1:24.3-29
+ # transient.el is provided by emacs in lisp/transient.el
