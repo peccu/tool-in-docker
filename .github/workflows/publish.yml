@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - ansible
+      - emacs-x
   release:
     types: [published]
 

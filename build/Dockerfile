@@ -49,7 +49,7 @@ RUN amazon-linux-extras enable epel \
         && yum clean metadata && yum install -y epel-release \
         && yum update -y \
         && yum install -y \
-        tar p7zip gzip
+        tar p7zip gzip xz
 
 # install ripgrep
 ENV VER_RG=13.0.0
@@ -169,6 +169,19 @@ RUN curl -LO https://github.com/ajeetdsouza/zoxide/releases/download/v${VER_zoxi
         && cd .. \
         && rm -rf zoxide zoxide-${VER_zoxide}-x86_64-unknown-linux-musl.tar.gz
 
+# install Tailwind CSS Standalone CLI
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
+        && chmod +x tailwindcss-linux-x64 \
+        && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
+
+ENV VER_watchexec=1.21.0
+RUN curl -LO https://github.com/watchexec/watchexec/releases/download/v${VER_watchexec}/watchexec-${VER_watchexec}-x86_64-unknown-linux-musl.tar.xz \
+        && tar xf watchexec-${VER_watchexec}-x86_64-unknown-linux-musl.tar.xz \
+        && cd watchexec-${VER_watchexec}-x86_64-unknown-linux-musl \
+        && mv watchexec /usr/local/bin \
+        && cd .. \
+        && rm -rf watchexec-${VER_watchexec}-x86_64-unknown-linux-musl{,.tar.xz}
+
 ##################################################
 FROM golang:latest as go
 ##################################################
@@ -179,6 +192,18 @@ RUN go install -v github.com/tokuhirom/git-xlsx-textconv@latest
 # this needs machine power
 # moved to bin layer
 # RUN go install -v github.com/aws-cloudformation/rain/cmd/rain@main
+
+##################################################
+FROM amazon/aws-cli:latest as rust
+##################################################
+
+RUN yum install -y gcc
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+RUN source /root/.cargo/env \
+    && cargo install the-way
+
+## other branch's space
+## other branch's space
 
 ##################################################
 FROM amazon/aws-cli:latest
@@ -228,35 +253,38 @@ RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux
 # install chezmoi
 RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 
+# copy datamash from build layer
+COPY --from=build /usr/local/bin/datamash /usr/local/bin/
+COPY --from=build /usr/local/bin/bash /usr/local/bin/
+COPY --from=build /usr/local/bin/tmux /usr/local/bin/
+# copy from golang layer
+COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
+# COPY --from=go /go/bin/rain /usr/local/bin/rain
+COPY --from=rust /root/.cargo/bin/the-way /usr/local/bin/
+# copy from bin layer
+COPY --from=bin /usr/local/bin/rg /usr/local/bin/
+# delta for git
+COPY --from=bin /usr/local/bin/delta /usr/local/bin/
+COPY --from=bin /usr/local/bin/atuin /usr/local/bin/
+# # copy fzf from bin layer
+# -> skim
+COPY --from=bin /usr/local/bin/fzf /usr/local/bin/
+COPY --from=bin /usr/local/bin/xsv /usr/local/bin/
+COPY --from=bin /usr/local/bin/sk /usr/local/bin/
+COPY --from=bin /usr/local/bin/bat /usr/local/bin/
+COPY --from=bin /usr/local/bin/fd /usr/local/bin/
+COPY --from=bin /usr/local/bin/jless /usr/local/bin/
+COPY --from=bin /usr/local/bin/rain /usr/local/bin/
+COPY --from=bin /usr/local/bin/cfn-skeleton /usr/local/bin/
+COPY --from=bin /usr/local/bin/cfn-format /usr/local/bin/
+COPY --from=bin /usr/local/bin/jd /usr/local/bin/
+COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/
+COPY --from=bin /usr/local/bin/tailwindcss /usr/local/bin/
+COPY --from=bin /usr/local/bin/watchexec /usr/local/bin/
+
 ## other branch's space
 RUN pip3 install ansible
 ## other branch's space
-
-# copy datamash from build layer
-COPY --from=build /usr/local/bin/datamash /usr/local/bin/datamash
-COPY --from=build /usr/local/bin/bash /usr/local/bin/bash
-COPY --from=build /usr/local/bin/tmux /usr/local/bin/tmux
-# copy from golang layer
-COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/git-xlsx-textconv
-# COPY --from=go /go/bin/rain /usr/local/bin/rain
-# copy from bin layer
-COPY --from=bin /usr/local/bin/rg /usr/local/bin/rg
-# delta for git
-COPY --from=bin /usr/local/bin/delta /usr/local/bin/delta
-COPY --from=bin /usr/local/bin/atuin /usr/local/bin/atuin
-# # copy fzf from bin layer
-# -> skim
-COPY --from=bin /usr/local/bin/fzf /usr/local/bin/fzf
-COPY --from=bin /usr/local/bin/xsv /usr/local/bin/xsv
-COPY --from=bin /usr/local/bin/sk /usr/local/bin/sk
-COPY --from=bin /usr/local/bin/bat /usr/local/bin/bat
-COPY --from=bin /usr/local/bin/fd /usr/local/bin/fd
-COPY --from=bin /usr/local/bin/jless /usr/local/bin/jless
-COPY --from=bin /usr/local/bin/rain /usr/local/bin/rain
-COPY --from=bin /usr/local/bin/cfn-skeleton /usr/local/bin/cfn-skeleton
-COPY --from=bin /usr/local/bin/cfn-format /usr/local/bin/cfn-format
-COPY --from=bin /usr/local/bin/jd /usr/local/bin/jd
-COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/zoxide
 
 STOPSIGNAL SIGKILL
 VOLUME ["/root"]

@@ -1,0 +1,53 @@
+{
+  // These tasks will run in order when initializing your CodeSandbox project.
+  "setupTasks": [],
+
+  // These tasks can be run from CodeSandbox. Running one will open a log in the app.
+  "tasks": {
+    "pull built image": {
+      "name": "latest: pull",
+      "command": "docker pull peccu/tool-in-docker:latest",
+      "runAtStart": false
+    },
+    "run pulled container": {
+      "name": "latest: run background",
+      "command": "docker run --name latest -d peccu/tool-in-docker:latest",
+      "runAtStart": false
+    },
+    "exec latest": {
+      "name": "latest: exec bash",
+      "command": "docker exec -it latest /usr/local/bin/bash",
+      "runAtStart": false
+    },
+    "build current Dockerfile": {
+      "name": "current: build ./build",
+      "command": "docker build build -t current",
+      "runAtStart": false
+    },
+    "run current": {
+      "name": "current: run background",
+      "command": "docker run --name current -d current",
+      "runAtStart": false
+    },
+    "exec current": {
+      "name": "current: exec bash",
+      "command": "docker exec -it current /usr/local/bin/bash",
+      "runAtStart": false
+    },
+    "build testing Dockerfile": {
+      "name": "testing: build testing",
+      "command": "docker build ./testing -t testing",
+      "runAtStart": false
+    },
+    "run testing": {
+      "name": "testing: run background",
+      "command": "docker run --name testing -d testing",
+      "runAtStart": false
+    },
+    "exec testing": {
+      "name": "testing: exec bash",
+      "command": "docker exec -it testing bash",
+      "runAtStart": false
+    }
+  }
+}
