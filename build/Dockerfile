@@ -211,6 +211,9 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 RUN source /root/.cargo/env \
     && cargo install the-way
 
+## other branch's space
+## other branch's space
+
 ##################################################
 FROM amazon/aws-cli:latest
 ##################################################
@@ -259,16 +262,6 @@ RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux
 # install chezmoi
 RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 
-## other branch's space
-RUN yum install -y emacs
-COPY --from=bin /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf /usr/share/fonts/SourceHanSans-VF/
-COPY --from=bin /usr/share/fonts/FilaCode/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
-RUN fc-cache -fv && fc-list
-# Emacs for WSLg related
-# for vGPU container
-ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
-## other branch's space
-
 # copy datamash from build layer
 COPY --from=build /usr/local/bin/datamash /usr/local/bin/
 COPY --from=build /usr/local/bin/bash /usr/local/bin/
@@ -297,6 +290,19 @@ COPY --from=bin /usr/local/bin/jd /usr/local/bin/
 COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/
 COPY --from=bin /usr/local/bin/tailwindcss /usr/local/bin/
 COPY --from=bin /usr/local/bin/watchexec /usr/local/bin/
+
+## other branch's space
+# Emacs for WSLg related
+RUN yum install -y emacs
+
+# add fonts
+COPY --from=bin /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf /usr/share/fonts/SourceHanSans-VF/
+COPY --from=bin /usr/share/fonts/FilaCode/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
+RUN fc-cache -fv && fc-list
+
+# for vGPU container
+ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
+## other branch's space
 
 STOPSIGNAL SIGKILL
 VOLUME ["/root"]
