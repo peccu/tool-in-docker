@@ -182,6 +182,15 @@ RUN curl -LO https://github.com/watchexec/watchexec/releases/download/v${VER_wat
         && cd .. \
         && rm -rf watchexec-${VER_watchexec}-x86_64-unknown-linux-musl{,.tar.xz}
 
+RUN mkdir -p /usr/share/fonts/SourceHanSans-VF/ \
+        && curl -Lo /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf \
+        https://github.com/adobe-fonts/source-han-sans/raw/release/Variable/OTF/SourceHanSans-VF.otf
+
+RUN mkdir -p /tmp/fonts \
+        && curl -LO $(curl -s https://api.github.com/repos/tonsky/FiraCode/releases/latest | jq -r '.assets[0]|.browser_download_url') \
+        && mkdir -p /usr/share/fonts/FilaCode/ \
+        && mv variable_ttf/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
+
 ##################################################
 FROM golang:latest as go
 ##################################################
@@ -252,6 +261,12 @@ RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 
 ## other branch's space
 RUN yum install -y emacs
+COPY --from=bin /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf /usr/share/fonts/SourceHanSans-VF/
+COPY --from=bin /usr/share/fonts/FilaCode/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
+RUN fc-cache -fv && fc-list
+# Emacs for WSLg related
+# for vGPU container
+ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
 ## other branch's space
 
 # copy datamash from build layer
