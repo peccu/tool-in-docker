@@ -38,7 +38,17 @@ RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${V
         && ./configure \
         && make \
         && make install \
+        && cd .. \
         && rm -rf tmux-${VER_tmux}{,.tar.gz}
+
+# reptyr PID
+# re-attach disowned process
+ENV VER_reptyr=0.9.0
+RUN curl -LO https://github.com/nelhage/reptyr/archive/refs/tags/reptyr-${VER_reptyr}.tar.gz \
+        && tar xf reptyr-${VER_reptyr}.tar.gz \
+        && cd reptyr-reptyr-${VER_reptyr} \
+        && make \
+        && mv reptyr /usr/local/bin/
 
 ##################################################
 FROM amazon/aws-cli:latest as bin
@@ -257,6 +267,7 @@ RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 COPY --from=build /usr/local/bin/datamash /usr/local/bin/
 COPY --from=build /usr/local/bin/bash /usr/local/bin/
 COPY --from=build /usr/local/bin/tmux /usr/local/bin/
+COPY --from=build /usr/local/bin/reptyr /usr/local/bin/
 # copy from golang layer
 COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 # COPY --from=go /go/bin/rain /usr/local/bin/rain
