@@ -192,6 +192,12 @@ RUN curl -LO https://github.com/watchexec/watchexec/releases/download/v${VER_wat
         && cd .. \
         && rm -rf watchexec-${VER_watchexec}-x86_64-unknown-linux-musl{,.tar.xz}
 
+# NCurses Disk Usage
+ENV VER_ncdu=2.2.1
+RUN curl -sLO https://dev.yorhel.nl/download/ncdu-${VER_ncdu}-linux-x86_64.tar.gz \
+        && tar xf ncdu-${VER_ncdu}-linux-x86_64.tar.gz \
+        && mv ncdu /usr/local/bin/
+
 # https://github.com/adobe-fonts/source-han-sans/tree/release#otf
 RUN mkdir -p /usr/share/fonts/SourceHanSans-VF/ \
         && curl -Lo /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf \
@@ -225,7 +231,10 @@ RUN source /root/.cargo/env \
     && cargo install the-way
 
 ## other branch's space
+##################################################
 FROM amazon/aws-cli:latest
+##################################################
+
 RUN yum install -y \
         rpm-build \
         rpmdevtools \
@@ -321,6 +330,7 @@ COPY --from=bin /usr/local/bin/jd /usr/local/bin/
 COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/
 COPY --from=bin /usr/local/bin/tailwindcss /usr/local/bin/
 COPY --from=bin /usr/local/bin/watchexec /usr/local/bin/
+COPY --from=bin /usr/local/bin/ncdu /usr/local/bin/
 
 ## other branch's space
 # Emacs for WSLg related
