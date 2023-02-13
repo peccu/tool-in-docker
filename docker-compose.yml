@@ -1,6 +1,7 @@
 version: '3'
 services:
   app:
+    container_name: tool-in-docker
     # build: build
     image: peccu/tool-in-docker:latest
     environment:

@@ -2,7 +2,7 @@
 # -*- shell-script -*-
 # docker-compose.yml's path
 BASEDIR=~/Codes/tool-in-docker
-NAME=tool-in-docker-app-1
+NAME=tool-in-docker
 COMPOSE_FILE_PATH=$BASEDIR/docker-compose.yml
 
 function docker_compose_up-d(){
@@ -26,4 +26,4 @@ function docker_exec(){
 }
 
 # try exec or up and exec if failed
-docker_exec "$@" || (docker_compose_up-d && docker_exec "$@")
+docker_exec "$@" && : || (docker_compose_up-d && docker_exec "$@")
