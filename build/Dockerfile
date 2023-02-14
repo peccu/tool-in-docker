@@ -50,6 +50,9 @@ RUN curl -LO https://github.com/nelhage/reptyr/archive/refs/tags/reptyr-${VER_re
         && make \
         && mv reptyr /usr/local/bin/
 
+## other branch's space
+## other branch's space
+
 ##################################################
 FROM amazon/aws-cli:latest as bin
 ##################################################
@@ -198,6 +201,7 @@ RUN curl -sLO https://dev.yorhel.nl/download/ncdu-${VER_ncdu}-linux-x86_64.tar.g
         && tar xf ncdu-${VER_ncdu}-linux-x86_64.tar.gz \
         && mv ncdu /usr/local/bin/
 
+## other branch's space
 # https://github.com/adobe-fonts/source-han-sans/tree/release#otf
 RUN mkdir -p /usr/share/fonts/SourceHanSans-VF/ \
         && curl -Lo /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf \
@@ -209,6 +213,7 @@ RUN mkdir -p /tmp/fonts \
         && 7za x Fira_Code_*.zip \
         && mkdir -p /usr/share/fonts/FilaCode/ \
         && mv variable_ttf/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
+## other branch's space
 
 ##################################################
 FROM golang:latest as go
@@ -220,6 +225,9 @@ RUN go install -v github.com/tokuhirom/git-xlsx-textconv@latest
 # this needs machine power
 # moved to bin layer
 # RUN go install -v github.com/aws-cloudformation/rain/cmd/rain@main
+
+## other branch's space
+## other branch's space
 
 ##################################################
 FROM amazon/aws-cli:latest as rust
