@@ -50,6 +50,9 @@ RUN curl -LO https://github.com/nelhage/reptyr/archive/refs/tags/reptyr-${VER_re
         && make \
         && mv reptyr /usr/local/bin/
 
+## other branch's space
+## other branch's space
+
 ##################################################
 FROM amazon/aws-cli:latest as bin
 ##################################################
@@ -198,6 +201,9 @@ RUN curl -sLO https://dev.yorhel.nl/download/ncdu-${VER_ncdu}-linux-x86_64.tar.g
         && tar xf ncdu-${VER_ncdu}-linux-x86_64.tar.gz \
         && mv ncdu /usr/local/bin/
 
+## other branch's space
+## other branch's space
+
 ##################################################
 FROM golang:latest as go
 ##################################################
@@ -208,6 +214,9 @@ RUN go install -v github.com/tokuhirom/git-xlsx-textconv@latest
 # this needs machine power
 # moved to bin layer
 # RUN go install -v github.com/aws-cloudformation/rain/cmd/rain@main
+
+## other branch's space
+## other branch's space
 
 ##################################################
 FROM amazon/aws-cli:latest as rust
