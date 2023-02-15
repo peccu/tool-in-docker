@@ -325,7 +325,7 @@ COPY --from=bin /usr/local/bin/ncdu /usr/local/bin/
 
 ## other branch's space
 # Emacs for WSLg related
-COPY --from=emacs-wslg /root/rpmbuild/RPMS/x86_64/emacs-29.0.60-1.amzn2.x86_64.rpm /tmp/emacs/
+COPY --from=emacs-wslg /tmp/emacs/emacs-29.0.60-1.amzn2.x86_64.rpm /tmp/emacs/
 RUN yum install -y /tmp/emacs/emacs-29.0.60-1.amzn2.x86_64.rpm
 
 # add fonts
