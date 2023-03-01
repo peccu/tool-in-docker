@@ -213,6 +213,12 @@ RUN mkdir -p /tmp/fonts \
         && 7za x Fira_Code_*.zip \
         && mkdir -p /usr/share/fonts/FilaCode/ \
         && mv variable_ttf/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
+
+# FiraCode font (Nerd Font Ver.)
+RUN mkdir -p /tmp/fonts \
+        && curl -LO https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraCode/Regular/complete/Fira%20Code%20Regular%20Nerd%20Font%20Complete.ttf \
+        && mkdir -p /usr/share/fonts/FilaCode/ \
+        && mv Fira%20Code%20Regular%20Nerd%20Font%20Complete.ttf "/usr/share/fonts/FilaCode/Fira Code Regular Nerd Font Complete.ttf"
 ## other branch's space
 
 ##################################################
@@ -331,6 +337,7 @@ RUN yum install -y /tmp/emacs/emacs-29.0.60-1.amzn2.x86_64.rpm
 # add fonts
 COPY --from=bin /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf /usr/share/fonts/SourceHanSans-VF/
 COPY --from=bin /usr/share/fonts/FilaCode/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
+COPY --from=bin "/usr/share/fonts/FilaCode/Fira Code Regular Nerd Font Complete.ttf" /usr/share/fonts/FilaCode/
 RUN fc-cache -fv && fc-list
 
 # for vGPU container
