@@ -337,7 +337,7 @@ RUN yum install -y /tmp/emacs/emacs-29.0.60-1.amzn2.x86_64.rpm
 # add fonts
 COPY --from=bin /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf /usr/share/fonts/SourceHanSans-VF/
 COPY --from=bin /usr/share/fonts/FilaCode/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
-COPY --from=bin "/usr/share/fonts/FilaCode/Fira Code Regular Nerd Font Complete.ttf" /usr/share/fonts/FilaCode/
+COPY --from=bin ["/usr/share/fonts/FilaCode/Fira Code Regular Nerd Font Complete.ttf", "/usr/share/fonts/FilaCode/"]
 RUN fc-cache -fv && fc-list
 
 # for vGPU container
