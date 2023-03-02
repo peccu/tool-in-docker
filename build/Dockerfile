@@ -59,6 +59,10 @@ FROM ubuntu:20.04 as build-for-ubuntu
 
 # tmux
 ENV VER_tmux=3.3a
+# some package depends on tzdata so need to specify TZ
+# https://serverfault.com/a/1016972
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Tokyo
 RUN apt-get update \
         && apt-get install -y curl libevent-dev ncurses-dev build-essential bison pkg-config
 RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${VER_tmux}.tar.gz \
