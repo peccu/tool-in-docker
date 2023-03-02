@@ -54,7 +54,7 @@ RUN curl -LO https://github.com/nelhage/reptyr/archive/refs/tags/reptyr-${VER_re
 ## other branch's space
 
 ##################################################
-FROM ubuntu:20.04 as build-for-host
+FROM ubuntu:20.04 as build-for-ubuntu
 ##################################################
 
 # tmux
@@ -304,7 +304,7 @@ COPY --from=build /usr/local/bin/bash /usr/local/bin/
 COPY --from=build /usr/local/bin/tmux /usr/local/bin/
 COPY --from=build /usr/local/bin/reptyr /usr/local/bin/
 # copy from build for ubuntu layer
-COPY --from=build-for-host /usr/local/bin/tmux /usr/local/bin/tmux-ubuntu
+COPY --from=build-for-ubuntu /usr/local/bin/tmux /usr/local/bin/tmux-ubuntu
 # copy from golang layer
 COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 # COPY --from=go /go/bin/rain /usr/local/bin/rain
