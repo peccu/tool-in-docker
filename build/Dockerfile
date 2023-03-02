@@ -12,7 +12,7 @@ RUN set -x && cd /tmp \
         && tar xzf datamash-${VER_datamash}.tar.gz \
         && cd datamash-${VER_datamash} \
         && ./configure \
-        && make \
+        && make -j$(nproc) \
         && make install
 
 # bash 5.2 for zoxide <Space>+<Tab>
@@ -24,7 +24,7 @@ RUN curl -O http://ftp.gnu.org/gnu/bash/bash-${VER_bash}.tar.gz \
         && tar xf bash-${VER_bash}.tar.gz \
         && cd bash-${VER_bash} \
         && ./configure --with-curses \
-        && make \
+        && make -j$(nproc) \
         && make install \
         && rm -rf bash-${VER_bash}.tar.gz bash-${VER_bash}
 
@@ -36,7 +36,7 @@ RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${V
         && tar xf tmux-${VER_tmux}.tar.gz \
         && cd tmux-${VER_tmux} \
         && ./configure \
-        && make \
+        && make -j$(nproc) \
         && make install \
         && cd .. \
         && rm -rf tmux-${VER_tmux}{,.tar.gz}
@@ -47,7 +47,7 @@ ENV VER_reptyr=0.9.0
 RUN curl -LO https://github.com/nelhage/reptyr/archive/refs/tags/reptyr-${VER_reptyr}.tar.gz \
         && tar xf reptyr-${VER_reptyr}.tar.gz \
         && cd reptyr-reptyr-${VER_reptyr} \
-        && make \
+        && make -j$(nproc) \
         && mv reptyr /usr/local/bin/
 
 ## other branch's space
