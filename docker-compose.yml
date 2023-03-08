@@ -7,7 +7,7 @@ services:
     environment:
       - TOOLTYPE=tool
     volumes:
-      - ~:/root
+      - ~:/home/user
       - /clip:/clip
     ports:
       - 8080:8080
