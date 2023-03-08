@@ -18,7 +18,7 @@ docker run -d --name tool --user "$(id -u):$(id -g)" -v $HOME:/home/user peccu/t
 ## Usage
 
 ```bash
-docker exec -it tool /usr/local/bin/bash
+docker exec -it tool bash
 ```
 
 ## Installed tools
