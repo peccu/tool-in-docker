@@ -12,7 +12,7 @@ run container as a daemon (`sleep infinity`).
 # pull from docker hub (or you canuse github packages: ghcr.io/peccu/tool-in-docker)
 docker pull peccu/tool-in-docker
 # launch with home direcory
-docker run -d --name tool -v $HOME:/home/user peccu/tool-in-docker
+docker run -d --name tool --user "$(id -u):$(id -g)" -v $HOME:/home/user peccu/tool-in-docker
 ```
 
 ## Usage
