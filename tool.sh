@@ -26,5 +26,21 @@ function docker_exec(){
     # /usr/bin/zsh
 }
 
-# try exec or up and exec if failed
-docker_exec "$@" && : || (docker_compose_up-d && docker_exec "$@")
+function inShortTime(){
+    local launch=$1
+    local restarttime=$2
+    [ $(($(date +%s) - launch)) -lt $restarttime ]
+}
+
+# try exec or up and exec if failed in 10 seconds
+# ignore when execed after 10 seconds
+restarttime=10
+launch=$(date "+%s")
+
+docker_exec "$@" \
+    && : \
+    || (\
+        inShortTime $launch $restarttime \
+            && docker_compose_up-d \
+            && docker_exec "$@"\
+       )
