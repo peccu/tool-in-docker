@@ -14,6 +14,7 @@ function docker_compose_up-d(){
 function docker_exec(){
     docker exec \
            -it \
+           --user "$(id -u):$(id -g)" \
            -e LINES="`tput lines`" \
            -e COLUMNS="`tput cols`" \
            $NAME \
