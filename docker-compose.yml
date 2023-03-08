@@ -14,8 +14,8 @@ services:
       # PulseAudio
       - PULSE_SERVER
     volumes:
-      - ~:/root
       - /:/mnt/host
+      - ~:/home/user
       - /clip:/clip
       # X11
       - /tmp/.X11-unix:/tmp/.X11-unix
