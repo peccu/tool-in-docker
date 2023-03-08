@@ -6,11 +6,13 @@ When I use this container, I can use same toolset in various environment like WS
 
 ## Initialize
 
+run container as a daemon (`sleep infinity`).
+
 ```bash
 # pull from docker hub (or you canuse github packages: ghcr.io/peccu/tool-in-docker)
 docker pull peccu/tool-in-docker
 # launch with home direcory
-docker run -d --name tool -v $HOME:/root peccu/tool-in-docker
+docker run -d --name tool -v $HOME:/home/user peccu/tool-in-docker
 ```
 
 ## Usage
