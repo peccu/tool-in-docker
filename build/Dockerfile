@@ -268,7 +268,8 @@ RUN amazon-linux-extras enable epel \
         python3 python3-pip \
         yum-utils \
         whois bind-utils iputils procps zsh \
-        libevent
+        libevent \
+        sudo
 
 # install q
 ENV VER_q=3.1.6
@@ -339,8 +340,22 @@ COPY --from=bin /usr/local/bin/ncdu /usr/local/bin/
 RUN pip3 install ansible
 ## other branch's space
 
+# setup user environment
+ARG username=user
+RUN groupadd -g 1000 ${username} \
+        && useradd \
+        -d /home/${username} \
+        -g 1000 \
+        -lMN \
+        -s /usr/local/bin/bash \
+        -u 1000 \
+        ${username} \
+        && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${username} \
+        && chmod 0440 /etc/sudoers.d/${username}
+
+USER ${username}
 STOPSIGNAL SIGKILL
-VOLUME ["/root"]
-WORKDIR /root
+VOLUME ["/home/${username}"]
+WORKDIR /home/${username}
 ENTRYPOINT ["/usr/bin/sleep", "infinity"]
 # ENTRYPOINT ["/usr/local/bin/bash"]
