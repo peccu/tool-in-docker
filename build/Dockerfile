@@ -117,7 +117,7 @@ RUN curl -LO https://github.com/ellie/atuin/releases/download/${VER_atuin}/atuin
         && mv atuin-${VER_atuin}-x86_64-unknown-linux-gnu/atuin /usr/local/bin \
         && rm -rf atuin-${VER_atuin}-x86_64-unknown-linux-gnu*
 
-ENV VER_fzf=0.37.0
+ENV VER_fzf=0.38.0
 RUN curl -LO https://github.com/junegunn/fzf/releases/download/${VER_fzf}/fzf-${VER_fzf}-linux_amd64.tar.gz \
         && tar xzf fzf-${VER_fzf}-linux_amd64.tar.gz \
         && mv fzf /usr/local/bin \
