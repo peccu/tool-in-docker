@@ -16,6 +16,8 @@ services:
     volumes:
       - /:/mnt/host
       - ~:/home/user
+      # tmux UID is defined in .env file
+      - /tmp/tmux-${UID}:/tmp/tmux-${UID}
       - /clip:/clip
       # X11
       - /tmp/.X11-unix:/tmp/.X11-unix
