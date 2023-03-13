@@ -370,6 +370,9 @@ RUN fc-cache -fv && fc-list
 # for vGPU container
 ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
 # RUN yum install -y mesa-libGLw
+
+# chown
+RUN chown 1000.1000 /aws
 ## other branch's space
 
 # setup user environment
