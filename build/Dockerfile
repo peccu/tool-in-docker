@@ -267,7 +267,7 @@ RUN amazon-linux-extras enable epel \
         bash-completion bash-completion-extras pv openssl bc nmap \
         python3 python3-pip \
         yum-utils \
-        whois bind-utils iputils procps zsh \
+        whois bind-utils iputils procps psmisc zsh \
         libevent \
         sudo
 
