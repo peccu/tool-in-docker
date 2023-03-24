@@ -60,12 +60,12 @@ FROM ubuntu:20.04 as build-for-ubuntu
 # tmux
 ENV VER_tmux=3.3a
 # some package depends on tzdata so need to specify TZ
-    # https://serverfault.com/a/1016972
-    ARG DEBIAN_FRONTEND=noninteractive
-    ENV TZ=Asia/Tokyo
-    RUN apt-get update \
+# https://serverfault.com/a/1016972
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Tokyo
+RUN apt-get update \
     && apt-get install -y curl libevent-dev ncurses-dev build-essential bison pkg-config
-    RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${VER_tmux}.tar.gz \
+RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${VER_tmux}.tar.gz \
     && tar xf tmux-${VER_tmux}.tar.gz \
     && cd tmux-${VER_tmux} \
     && ./configure --enable-static \
@@ -74,125 +74,125 @@ ENV VER_tmux=3.3a
     && cd .. \
     && rm -rf tmux-${VER_tmux}{,.tar.gz}
 
-    ## other branch's space
-    ## other branch's space
+## other branch's space
+## other branch's space
 
-    ##################################################
-    FROM amazon/aws-cli:latest as bin
-    ##################################################
+##################################################
+FROM amazon/aws-cli:latest as bin
+##################################################
 
-    # epel-release is for nkf p7zip
-    RUN amazon-linux-extras enable epel \
+# epel-release is for nkf p7zip
+RUN amazon-linux-extras enable epel \
     && yum clean metadata && yum install -y epel-release \
     && yum update -y \
     && yum install -y \
     tar p7zip gzip xz
 
-    # install ripgrep
-    ENV VER_RG=13.0.0
-    RUN cd /usr/local \
+# install ripgrep
+ENV VER_RG=13.0.0
+RUN cd /usr/local \
     && curl -LO https://github.com/BurntSushi/ripgrep/releases/download/${VER_RG}/ripgrep-${VER_RG}-x86_64-unknown-linux-musl.tar.gz \
     && tar xzf ripgrep-* \
     && cd bin \
     && mv ../ripgrep-*/rg ./\
     && rm -rf ../ripgrep-*
 
-    # install delta for git
-    ENV VER_delta=0.7.1
-    RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
+# install delta for git
+ENV VER_delta=0.7.1
+RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
     && tar xzf delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
     && mv delta-${VER_delta}-x86_64-unknown-linux-gnu/delta /usr/local/bin \
     && rm -rf delta-${VER_delta}-x86_64-unknown-linux-gnu*
-    # some diff was broken
-    # ENV VER_delta=0.15.1
-    # RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
-    #         && tar xzf delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
-    #         && mv delta-${VER_delta}-x86_64-unknown-linux-musl/delta /usr/local/bin \
-    #         && rm -rf delta-${VER_delta}-x86_64-unknown-linux-musl*
+# some diff was broken
+# ENV VER_delta=0.15.1
+# RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
+#         && tar xzf delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
+#         && mv delta-${VER_delta}-x86_64-unknown-linux-musl/delta /usr/local/bin \
+#         && rm -rf delta-${VER_delta}-x86_64-unknown-linux-musl*
 
-    # install atuin
-    ENV VER_atuin=v12.0.0
-    RUN curl -LO https://github.com/ellie/atuin/releases/download/${VER_atuin}/atuin-${VER_atuin}-x86_64-unknown-linux-gnu.tar.gz \
+# install atuin
+ENV VER_atuin=v12.0.0
+RUN curl -LO https://github.com/ellie/atuin/releases/download/${VER_atuin}/atuin-${VER_atuin}-x86_64-unknown-linux-gnu.tar.gz \
     && tar xzf atuin-${VER_atuin}-x86_64-unknown-linux-gnu.tar.gz \
     && mv atuin-${VER_atuin}-x86_64-unknown-linux-gnu/atuin /usr/local/bin \
     && rm -rf atuin-${VER_atuin}-x86_64-unknown-linux-gnu*
 
-    ENV VER_fzf=0.38.0
-    RUN curl -LO https://github.com/junegunn/fzf/releases/download/${VER_fzf}/fzf-${VER_fzf}-linux_amd64.tar.gz \
+ENV VER_fzf=0.38.0
+RUN curl -LO https://github.com/junegunn/fzf/releases/download/${VER_fzf}/fzf-${VER_fzf}-linux_amd64.tar.gz \
     && tar xzf fzf-${VER_fzf}-linux_amd64.tar.gz \
     && mv fzf /usr/local/bin \
     && rm -rf fzf-${VER_fzf}-linux_amd64.tar.gz
 
-    ENV VER_xsv=0.13.0
-    RUN curl -LO https://github.com/BurntSushi/xsv/releases/download/${VER_xsv}/xsv-${VER_xsv}-x86_64-unknown-linux-musl.tar.gz \
+ENV VER_xsv=0.13.0
+RUN curl -LO https://github.com/BurntSushi/xsv/releases/download/${VER_xsv}/xsv-${VER_xsv}-x86_64-unknown-linux-musl.tar.gz \
     && tar xzf xsv-${VER_xsv}-x86_64-unknown-linux-musl.tar.gz \
     && mv xsv /usr/local/bin \
     && rm -rf xsv-${VER_xsv}-x86_64-unknown-linux-musl.tar.gz
 
-    ENV VER_skim=v0.9.4
-    RUN curl -LO https://github.com/lotabout/skim/releases/download/${VER_skim}/skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz \
+ENV VER_skim=v0.9.4
+RUN curl -LO https://github.com/lotabout/skim/releases/download/${VER_skim}/skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz \
     && tar xzf skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz \
     && mv sk /usr/local/bin \
     && rm -rf skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz
 
-    ENV VER_bat=v0.22.1
-    RUN curl -LO https://github.com/sharkdp/bat/releases/download/${VER_bat}/bat-${VER_bat}-x86_64-unknown-linux-musl.tar.gz \
+ENV VER_bat=v0.22.1
+RUN curl -LO https://github.com/sharkdp/bat/releases/download/${VER_bat}/bat-${VER_bat}-x86_64-unknown-linux-musl.tar.gz \
     && tar xzf bat-${VER_bat}-x86_64-unknown-linux-musl.tar.gz \
     && mv bat-${VER_bat}-x86_64-unknown-linux-musl/bat /usr/local/bin \
     && rm -rf bat-${VER_bat}-x86_64-unknown-linux-musl bat-${VER_bat}-x86_64-unknown-linux-musl.tar.gz
 
-    ENV VER_fd=v8.6.0
-    RUN curl -LO https://github.com/sharkdp/fd/releases/download/${VER_fd}/fd-${VER_fd}-x86_64-unknown-linux-musl.tar.gz \
+ENV VER_fd=v8.6.0
+RUN curl -LO https://github.com/sharkdp/fd/releases/download/${VER_fd}/fd-${VER_fd}-x86_64-unknown-linux-musl.tar.gz \
     && tar xzf fd-${VER_fd}-x86_64-unknown-linux-musl.tar.gz \
     && mv fd-${VER_fd}-x86_64-unknown-linux-musl/fd /usr/local/bin \
     && rm -rf fd-${VER_fd}-x86_64-unknown-linux-musl fd-${VER_fd}-x86_64-unknown-linux-musl.tar.gz
 
-    ENV VER_jless=v0.8.0
-    RUN curl -LO https://github.com/PaulJuliusMartinez/jless/releases/download/${VER_jless}/jless-${VER_jless}-x86_64-unknown-linux-gnu.zip \
+ENV VER_jless=v0.8.0
+RUN curl -LO https://github.com/PaulJuliusMartinez/jless/releases/download/${VER_jless}/jless-${VER_jless}-x86_64-unknown-linux-gnu.zip \
     && 7za x jless-${VER_jless}-x86_64-unknown-linux-gnu.zip \
     && chmod +x jless \
     && mv jless /usr/local/bin \
     && rm -rf jless-${VER_jless}-x86_64-unknown-linux-gnu.zip
 
-    ENV VER_jd=v1.6.1
-    RUN cd /usr/local/bin \
+ENV VER_jd=v1.6.1
+RUN cd /usr/local/bin \
     && curl -Lo jd https://github.com/josephburnett/jd/releases/download/${VER_jd}/jd-amd64-linux \
     && chmod +x jd
 
-    ## CloudFormation related
-    # this version is old. fetch on golang layer
-    # # install rain
-    # # https://github.com/aws-cloudformation/rain
-    # ENV VER_rain=v1.2.0
-    # RUN curl -LO https://github.com/aws-cloudformation/rain/releases/download/${VER_rain}/rain-${VER_rain}_linux-amd64.zip \
-    #         && 7za x rain-${VER_rain}_linux-amd64.zip \
-    #         && mv rain-${VER_rain}_linux-amd64/rain /usr/local/bin \
-    #         && rm -rf rain-${VER_rain}_linux-amd64 rain-${VER_rain}_linux-amd64.zip \
-    #         && rain --version \
-    #         && curl -Lo /usr/share/bash-completion/completions/rain https://github.com/aws-cloudformation/rain/raw/main/docs/bash_completion.sh
-    # but in golang layer need machine power, so back to here with forked repo's binary
-    # install rain
-    # https://github.com/peccu/rain
-    ENV VER_rain=v1.3.0
-    RUN curl -LO https://github.com/peccu/rain/releases/download/${VER_rain}/rain-${VER_rain}_linux-amd64.zip \
+## CloudFormation related
+# this version is old. fetch on golang layer
+# # install rain
+# # https://github.com/aws-cloudformation/rain
+# ENV VER_rain=v1.2.0
+# RUN curl -LO https://github.com/aws-cloudformation/rain/releases/download/${VER_rain}/rain-${VER_rain}_linux-amd64.zip \
+#         && 7za x rain-${VER_rain}_linux-amd64.zip \
+#         && mv rain-${VER_rain}_linux-amd64/rain /usr/local/bin \
+#         && rm -rf rain-${VER_rain}_linux-amd64 rain-${VER_rain}_linux-amd64.zip \
+#         && rain --version \
+#         && curl -Lo /usr/share/bash-completion/completions/rain https://github.com/aws-cloudformation/rain/raw/main/docs/bash_completion.sh
+# but in golang layer need machine power, so back to here with forked repo's binary
+# install rain
+# https://github.com/peccu/rain
+ENV VER_rain=v1.3.0
+RUN curl -LO https://github.com/peccu/rain/releases/download/${VER_rain}/rain-${VER_rain}_linux-amd64.zip \
     && 7za x rain-${VER_rain}_linux-amd64.zip \
     && mv rain-${VER_rain}_linux-amd64/rain /usr/local/bin \
     && rm -rf rain-${VER_rain}_linux-amd64 rain-${VER_rain}_linux-amd64.zip \
     && rain --version \
     && curl -Lo /usr/share/bash-completion/completions/rain https://github.com/peccu/rain/raw/${VER_rain}/docs/bash_completion.sh
 
-    # install template builder
-    # https://github.com/awslabs/aws-cloudformation-template-builder
-    ENV VER_cfn_skelton=v0.2.0
-    RUN curl -LO https://github.com/awslabs/aws-cloudformation-template-builder/releases/download/${VER_cfn_skelton}/cfn-skeleton-${VER_cfn_skelton}_linux-amd64.zip \
+# install template builder
+# https://github.com/awslabs/aws-cloudformation-template-builder
+ENV VER_cfn_skelton=v0.2.0
+RUN curl -LO https://github.com/awslabs/aws-cloudformation-template-builder/releases/download/${VER_cfn_skelton}/cfn-skeleton-${VER_cfn_skelton}_linux-amd64.zip \
     && 7za x cfn-skeleton-${VER_cfn_skelton}_linux-amd64.zip \
     && mv cfn-skeleton-${VER_cfn_skelton}_linux-amd64/cfn-skeleton /usr/local/bin \
     && rm -rf cfn-skeleton-${VER_cfn_skelton}_linux-amd64 cfn-skeleton-${VER_cfn_skelton}_linux-amd64.zip
 
-    # install template formatter
-    # https://github.com/awslabs/aws-cloudformation-template-formatter
-    ENV VER_cfn_format=v1.1.2-1
-    RUN curl -LO https://github.com/awslabs/aws-cloudformation-template-formatter/releases/download/${VER_cfn_format}/cfn-format-${VER_cfn_format}_linux-amd64.zip \
+# install template formatter
+# https://github.com/awslabs/aws-cloudformation-template-formatter
+ENV VER_cfn_format=v1.1.2-1
+RUN curl -LO https://github.com/awslabs/aws-cloudformation-template-formatter/releases/download/${VER_cfn_format}/cfn-format-${VER_cfn_format}_linux-amd64.zip \
     && 7za x cfn-format-${VER_cfn_format}_linux-amd64.zip \
     && mv cfn-format-${VER_cfn_format}_linux-amd64/cfn-format /usr/local/bin \
     && rm -rf cfn-format-${VER_cfn_format}_linux-amd64 cfn-format-${VER_cfn_format}_linux-amd64.zip
