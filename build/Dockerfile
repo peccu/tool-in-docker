@@ -329,7 +329,8 @@ RUN curl -LO https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam
     && sam --version
 
 # install azure-cli percol, cfn-lint
-RUN pip3 install azure-cli percol cfn-lint
+# stick urllib3's version to ignore OpenSSL version error
+RUN pip3 install azure-cli percol cfn-lint urllib3==1.26.6
 
 # install terraform
 RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo \
