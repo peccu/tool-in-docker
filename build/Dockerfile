@@ -225,6 +225,11 @@ RUN curl -sLO https://dev.yorhel.nl/download/ncdu-${VER_ncdu}-linux-x86_64.tar.g
     && tar xf ncdu-${VER_ncdu}-linux-x86_64.tar.gz \
     && mv ncdu /usr/local/bin/
 
+# install JQ latest version
+ENV VER_jq=1.6
+RUN curl -sLo /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/jq-${VER_jq}/jq-linux64 \
+    && chmod +x /usr/local/bin/jq
+
 ## other branch's space
 # https://github.com/adobe-fonts/source-han-sans/tree/release#otf
 RUN mkdir -p /usr/share/fonts/SourceHanSans-VF/ \
@@ -290,7 +295,6 @@ RUN amazon-linux-extras enable epel \
     emacs-nox \
     git \
     iputils \
-    jq \
     libevent \
     nkf \
     nmap \
@@ -375,6 +379,7 @@ COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/
 COPY --from=bin /usr/local/bin/tailwindcss /usr/local/bin/
 COPY --from=bin /usr/local/bin/watchexec /usr/local/bin/
 COPY --from=bin /usr/local/bin/ncdu /usr/local/bin/
+COPY --from=bin /usr/local/bin/jq /usr/local/bin/
 
 ## other branch's space
 # Emacs for WSLg related
