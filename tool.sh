@@ -12,7 +12,10 @@ function docker_compose_up-d(){
 }
 
 function docker_exec(){
+    wd=$1
+    shift
     docker exec \
+           -w $wd \
            -it \
            --user "$(id -u):$(id -g)" \
            -e LINES="`tput lines`" \
@@ -36,11 +39,12 @@ function inShortTime(){
 # ignore when execed after 10 seconds
 restarttime=10
 launch=$(date "+%s")
+wd=$(pwd | sed "s|$(echo $(cd;pwd))|/home/user|")
 
-docker_exec "$@" \
+docker_exec "$wd" "$@" \
     && : \
     || (\
         inShortTime $launch $restarttime \
             && docker_compose_up-d \
-            && docker_exec "$@"\
+            && docker_exec "$wd" "$@"\
        )
