@@ -1,5 +1,6 @@
 FROM peccu/tool-in-docker:emacs-x
 
+USER root
 RUN yum install -y crontabs \
         && yum clean all
 # RUN crontab -l | { cat - ; echo "* * * * * bash -c 'echo -n \"running on \" ; date' >> /tmp/cronlog"; } | crontab -
