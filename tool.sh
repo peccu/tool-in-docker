@@ -6,7 +6,7 @@ NAME=tool-in-docker
 COMPOSE_FILE_PATH=$BASEDIR/docker-compose.yml
 
 function docker_compose_up-d(){
-    docker-compose \
+    docker compose \
         -f ${COMPOSE_FILE_PATH} \
         up -d
 }
