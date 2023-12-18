@@ -13,7 +13,6 @@ function docker_compose(){
     else
         docker compose \
                -f ${COMPOSE_FILE_PATH} \
-               -f ${COMPOSE_FILE2_PATH} \
                "$@"
     fi
 }
