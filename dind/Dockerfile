@@ -30,20 +30,26 @@ RUN apt-get install \
 
 # setup user environment
 ARG username=user
+    # -s /usr/local/bin/bash \
+ARG homedir=/mnt/c/Users
+RUN mkdir -p ${homedir}
 RUN groupadd -g 1000 ${username} \
     && useradd \
-    -d /home/${username} \
+    -d ${homedir}/${username} \
     -g 1000 \
     -lMN \
-    -s /usr/local/bin/bash \
+    -s /usr/bin/bash \
     -u 1000 \
     ${username} \
     && apt-get install sudo \
     && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${username} \
     && chmod 0440 /etc/sudoers.d/${username}
 
+# add user to docker group for access to docker
+RUN usermod -a -G docker ${username}
+
 USER ${username}
 STOPSIGNAL SIGKILL
-VOLUME ["/home/${username}"]
-WORKDIR /home/${username}
+VOLUME ["${homedir}/${username}"]
+WORKDIR ${homedir}/${username}
 ENTRYPOINT ["/usr/bin/sleep", "infinity"]

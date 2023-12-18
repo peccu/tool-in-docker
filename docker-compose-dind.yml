@@ -13,9 +13,12 @@ services:
       # - XDG_RUNTIME_DIR
       # # PulseAudio
       # - PULSE_SERVER
+      # # Docker in Docker
+      # - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - /:/mnt/host
-      - ~:/home/user
+      # for mount local path into container
+      - ~:$HOME
       # for chezmoi cd
       - /run/user/1000:/run/user/1000
       # tmux UID is defined in .env file
