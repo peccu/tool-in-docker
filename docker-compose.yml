@@ -8,6 +8,8 @@ services:
       - TOOLTYPE=tool
     volumes:
       - ~:/home/user
+      # for chezmoi cd
+      - /run/user/1000:/run/user/1000
       # tmux UID is defined in .env file
       - /tmp/tmux-${UID}:/tmp/tmux-${UID}
       - /clip:/clip
