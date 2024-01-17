@@ -1,8 +1,79 @@
-FROM ubuntu:22.04 as dind
+##################################################
+FROM ubuntu:22.04 as base
+##################################################
+
+RUN apt-get update
+RUN apt-get install -y \
+    curl
+
+## other branch's space
+## other branch's space
+
+##################################################
+FROM base as build
+##################################################
+
+# tmux
+ENV VER_tmux=3.3a
+# some package depends on tzdata so need to specify TZ
+# https://serverfault.com/a/1016972
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Tokyo
+RUN apt-get install -y \
+    libevent-dev \
+    ncurses-dev \
+    build-essential \
+    bison \
+    pkg-config
+RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${VER_tmux}.tar.gz \
+    && tar xf tmux-${VER_tmux}.tar.gz \
+    && cd tmux-${VER_tmux} \
+    && ./configure --enable-static \
+    && make -j$(nproc) \
+    && make install \
+    && cd .. \
+    && rm -rf tmux-${VER_tmux}{,.tar.gz}
+
+## other branch's space
+## other branch's space
+
+##################################################
+FROM base as bin
+##################################################
+
+# install ripgrep
+# https://github.com/BurntSushi/ripgrep/releases
+ENV VER_RG=14.1.0
+RUN cd /usr/local \
+    && curl -LO https://github.com/BurntSushi/ripgrep/releases/download/${VER_RG}/ripgrep-${VER_RG}-x86_64-unknown-linux-musl.tar.gz \
+    && tar xzf ripgrep-* \
+    && cd bin \
+    && mv ../ripgrep-*/rg ./\
+    && rm -rf ../ripgrep-*
+
+# install delta for git
+ENV VER_delta=0.16.5
+RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
+    && tar xzf delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
+    && mv delta-${VER_delta}-x86_64-unknown-linux-gnu/delta /usr/local/bin \
+    && rm -rf delta-${VER_delta}-x86_64-unknown-linux-gnu*
+# muls version
+# RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
+#     && tar xzf delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
+#     && mv delta-${VER_delta}-x86_64-unknown-linux-musl/delta /usr/local/bin \
+#     && rm -rf delta-${VER_delta}-x86_64-unknown-linux-musl*
+
+## other branch's space
+## other branch's space
+
+##################################################
+FROM base as dind
+##################################################
 
 # setup docker
-RUN apt-get update \
-    && apt-get install ca-certificates curl gnupg -y \
+RUN apt-get install -y \
+    ca-certificates \
+    gnupg \
     && install -m 0755 -d /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && chmod a+r /etc/apt/keyrings/docker.gpg \
@@ -28,6 +99,15 @@ RUN apt-get install \
     && ./aws/install \
     && rm -rf awscliv2.zip ./aws
 
+# copy from build layer
+COPY --from=build /usr/local/bin/tmux /usr/local/bin/
+# copy from bin layer
+COPY --from=bin /usr/local/bin/rg /usr/local/bin/
+COPY --from=bin /usr/local/bin/delta /usr/local/bin/
+
+## other branch's space
+## other branch's space
+
 # setup user environment
 ARG username=user
     # -s /usr/local/bin/bash \
@@ -42,8 +122,8 @@ RUN groupadd -g 1000 ${username} \
     -u 1000 \
     ${username} \
     && apt-get install sudo \
-    && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${username} \
-    && chmod 0440 /etc/sudoers.d/${username}
+    && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g') \
+    && chmod 0440 /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g')
 
 # add user to docker group for access to docker
 RUN usermod -a -G docker ${username}
