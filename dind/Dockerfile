@@ -19,20 +19,22 @@ ENV VER_tmux=3.3a
 # https://serverfault.com/a/1016972
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Tokyo
+ENV ARCHIVE=tmux-${VER_tmux}
 RUN apt-get install -y \
     libevent-dev \
     ncurses-dev \
     build-essential \
     bison \
     pkg-config
-RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${VER_tmux}.tar.gz \
-    && tar xf tmux-${VER_tmux}.tar.gz \
-    && cd tmux-${VER_tmux} \
+RUN mkdir -p /tmp/${ARCHIVE} \
+    && cd /tmp/${ARCHIVE} \
+    && curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/${ARCHIVE}.tar.gz \
+    && tar xf ${ARCHIVE}.tar.gz \
+    && cd ${ARCHIVE} \
     && ./configure --enable-static \
     && make -j$(nproc) \
     && make install \
-    && cd .. \
-    && rm -rf tmux-${VER_tmux}{,.tar.gz}
+    && rm -rf /tmp/${ARCHIVE}
 
 ## other branch's space
 ## other branch's space
