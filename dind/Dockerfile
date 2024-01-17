@@ -36,6 +36,19 @@ RUN mkdir -p /tmp/${ARCHIVE} \
     && make install \
     && rm -rf /tmp/${ARCHIVE}
 
+# reptyr PID
+# re-attach disowned process
+ENV VER_reptyr=0.9.0
+ENV ARCHIVE=reptyr-${VER_reptyr}
+RUN mkdir -p /tmp/${ARCHIVE} \
+    && cd /tmp/${ARCHIVE} \
+    && curl -LO https://github.com/nelhage/reptyr/archive/refs/tags/${ARCHIVE}.tar.gz \
+    && tar xf ${ARCHIVE}.tar.gz \
+    && cd reptyr-${ARCHIVE} \
+    && make -j$(nproc) \
+    && mv reptyr /usr/local/bin/ \
+    && rm -rf /tmp/${ARCHIVE}
+
 ## other branch's space
 ## other branch's space
 
@@ -115,6 +128,7 @@ RUN apt-get install \
 
 # copy from build layer
 COPY --from=build /usr/local/bin/tmux /usr/local/bin/
+COPY --from=build /usr/local/bin/reptyr /usr/local/bin/
 # copy from bin layer
 COPY --from=bin /usr/local/bin/rg /usr/local/bin/
 COPY --from=bin /usr/local/bin/delta /usr/local/bin/
