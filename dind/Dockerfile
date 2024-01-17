@@ -44,24 +44,36 @@ FROM base as bin
 # install ripgrep
 # https://github.com/BurntSushi/ripgrep/releases
 ENV VER_RG=14.1.0
-RUN cd /usr/local \
-    && curl -LO https://github.com/BurntSushi/ripgrep/releases/download/${VER_RG}/ripgrep-${VER_RG}-x86_64-unknown-linux-musl.tar.gz \
-    && tar xzf ripgrep-* \
-    && cd bin \
-    && mv ../ripgrep-*/rg ./\
-    && rm -rf ../ripgrep-*
+ENV ARCHIVE=ripgrep-${VER_RG}-x86_64-unknown-linux-musl
+RUN mkdir -p /tmp/${ARCHIVE} \
+    && cd /tmp/${ARCHIVE} \
+    && curl -LO https://github.com/BurntSushi/ripgrep/releases/download/${VER_RG}/${ARCHIVE}.tar.gz \
+    && tar xzf ${ARCHIVE}* \
+    && mv ${ARCHIVE}/rg /usr/local/bin \
+    && rm -rf /tmp/${ARCHIVE}
 
 # install delta for git
 ENV VER_delta=0.16.5
-RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
-    && tar xzf delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
-    && mv delta-${VER_delta}-x86_64-unknown-linux-gnu/delta /usr/local/bin \
-    && rm -rf delta-${VER_delta}-x86_64-unknown-linux-gnu*
+ENV ARCHIVE=delta-${VER_delta}-x86_64-unknown-linux-gnu
 # muls version
-# RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
-#     && tar xzf delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
-#     && mv delta-${VER_delta}-x86_64-unknown-linux-musl/delta /usr/local/bin \
-#     && rm -rf delta-${VER_delta}-x86_64-unknown-linux-musl*
+# ENV ARCHIVE=delta-${VER_delta}-x86_64-unknown-linux-musl
+RUN mkdir -p /tmp/${ARCHIVE} \
+    && cd /tmp/${ARCHIVE} \
+    && curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/${ARCHIVE}.tar.gz \
+    && tar xzf ${ARCHIVE}* \
+    && mv ${ARCHIVE}/delta /usr/local/bin \
+    && rm -rf /tmp/${ARCHIVE}
+
+# install unison (bi directonal sync)
+# https://github.com/bcpierce00/unison/releases
+ENV VER_UNISON=2.53.3
+ENV ARCHIVE=unison-${VER_UNISON}-ubuntu-x86_64
+RUN mkdir -p /tmp/${ARCHIVE} \
+    && cd /tmp/${ARCHIVE} \
+    && curl -LO https://github.com/bcpierce00/unison/releases/download/v${VER_UNISON}/${ARCHIVE}.tar.gz \
+    && tar xzf ${ARCHIVE}* \
+    && mv bin/unison /usr/local/bin/ \
+    && rm -rf /tmp/${ARCHIVE}
 
 ## other branch's space
 ## other branch's space
@@ -104,6 +116,7 @@ COPY --from=build /usr/local/bin/tmux /usr/local/bin/
 # copy from bin layer
 COPY --from=bin /usr/local/bin/rg /usr/local/bin/
 COPY --from=bin /usr/local/bin/delta /usr/local/bin/
+COPY --from=bin /usr/local/bin/unison /usr/local/bin/
 
 ## other branch's space
 ## other branch's space
