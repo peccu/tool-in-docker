@@ -42,8 +42,8 @@ RUN groupadd -g 1000 ${username} \
     -u 1000 \
     ${username} \
     && apt-get install sudo \
-    && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${username} \
-    && chmod 0440 /etc/sudoers.d/${username}
+    && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g') \
+    && chmod 0440 /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g')
 
 # add user to docker group for access to docker
 RUN usermod -a -G docker ${username}
