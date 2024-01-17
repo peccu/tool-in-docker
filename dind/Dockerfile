@@ -1,8 +1,36 @@
-FROM ubuntu:22.04 as dind
+##################################################
+FROM ubuntu:22.04 as base
+##################################################
+
+RUN apt-get update
+RUN apt-get install -y \
+    curl
+
+## other branch's space
+## other branch's space
+
+##################################################
+FROM base as build
+##################################################
+
+## other branch's space
+## other branch's space
+
+##################################################
+FROM base as bin
+##################################################
+
+## other branch's space
+## other branch's space
+
+##################################################
+FROM base as dind
+##################################################
 
 # setup docker
-RUN apt-get update \
-    && apt-get install ca-certificates curl gnupg -y \
+RUN apt-get install -y \
+    ca-certificates \
+    gnupg \
     && install -m 0755 -d /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && chmod a+r /etc/apt/keyrings/docker.gpg \
@@ -27,6 +55,12 @@ RUN apt-get install \
     && unzip /awscliv2.zip \
     && ./aws/install \
     && rm -rf awscliv2.zip ./aws
+
+# copy from build layer
+# copy from bin layer
+
+## other branch's space
+## other branch's space
 
 # setup user environment
 ARG username=user
