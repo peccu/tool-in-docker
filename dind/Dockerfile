@@ -71,6 +71,23 @@ RUN mkdir -p /tmp/${A} \
     && make install \
     && rm -rf /tmp/${A}
 
+# bash 5.2 for zoxide <Space>+<Tab>
+# with curses option is for readline's "horizontal-scroll off"
+# ref. https://lists.gnu.org/archive/html/bug-readline/2015-11/msg00006.html
+ENV V=5.2
+ENV A=bash-${V}
+# RUN apt-get install libncurses5-dev
+RUN mkdir -p /tmp/${A} \
+    && cd /tmp/${A} \
+    && curl -LO http://ftp.gnu.org/gnu/bash/${A}.tar.gz \
+    && tar xf ${A}.tar.gz \
+    && cd ${A} \
+    && ./configure --with-curses \
+    && make -j$(nproc) \
+    && make install \
+    && mv /usr/local/bin/bash ${OUT} \
+    && rm -rf /tmp/${A}
+
 ## other branch's space
 ## other branch's space
 
@@ -342,6 +359,7 @@ RUN apt-get install \
 COPY --from=build ${OUT}/tmux /usr/local/bin/
 COPY --from=build ${OUT}/reptyr /usr/local/bin/
 COPY --from=build /usr/local/bin/datamash /usr/local/bin/
+COPY --from=build ${OUT}/bash /usr/local/bin/
 # copy from bin layer
 COPY --from=bin ${OUT}/rg /usr/local/bin/
 COPY --from=bin ${OUT}/delta /usr/local/bin/
@@ -374,7 +392,7 @@ COPY --from=rust /usr/local/cargo/bin/the-way /usr/local/bin/
 
 # setup user environment
 ARG username=user
-    # -s /usr/local/bin/bash \
+# /usr/local/bin/bash has built in build layer
 ARG homedir=/mnt/c/Users
 RUN mkdir -p ${homedir}
 RUN groupadd -g 1000 ${username} \
@@ -382,7 +400,7 @@ RUN groupadd -g 1000 ${username} \
     -d ${homedir}/${username} \
     -g 1000 \
     -lMN \
-    -s /usr/bin/bash \
+    -s /usr/local/bin/bash \
     -u 1000 \
     ${username} \
     && apt-get install sudo \
