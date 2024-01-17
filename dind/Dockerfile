@@ -13,6 +13,27 @@ RUN apt-get install -y \
 FROM base as build
 ##################################################
 
+# tmux
+ENV VER_tmux=3.3a
+# some package depends on tzdata so need to specify TZ
+# https://serverfault.com/a/1016972
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Tokyo
+RUN apt-get install -y \
+    libevent-dev \
+    ncurses-dev \
+    build-essential \
+    bison \
+    pkg-config
+RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${VER_tmux}.tar.gz \
+    && tar xf tmux-${VER_tmux}.tar.gz \
+    && cd tmux-${VER_tmux} \
+    && ./configure --enable-static \
+    && make -j$(nproc) \
+    && make install \
+    && cd .. \
+    && rm -rf tmux-${VER_tmux}{,.tar.gz}
+
 ## other branch's space
 ## other branch's space
 
@@ -57,6 +78,7 @@ RUN apt-get install \
     && rm -rf awscliv2.zip ./aws
 
 # copy from build layer
+COPY --from=build /usr/local/bin/tmux /usr/local/bin/
 # copy from bin layer
 
 ## other branch's space
