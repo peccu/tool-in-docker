@@ -41,6 +41,16 @@ RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${V
 FROM base as bin
 ##################################################
 
+# install ripgrep
+# https://github.com/BurntSushi/ripgrep/releases
+ENV VER_RG=14.1.0
+RUN cd /usr/local \
+    && curl -LO https://github.com/BurntSushi/ripgrep/releases/download/${VER_RG}/ripgrep-${VER_RG}-x86_64-unknown-linux-musl.tar.gz \
+    && tar xzf ripgrep-* \
+    && cd bin \
+    && mv ../ripgrep-*/rg ./\
+    && rm -rf ../ripgrep-*
+
 ## other branch's space
 ## other branch's space
 
@@ -80,6 +90,7 @@ RUN apt-get install \
 # copy from build layer
 COPY --from=build /usr/local/bin/tmux /usr/local/bin/
 # copy from bin layer
+COPY --from=bin /usr/local/bin/rg /usr/local/bin/
 
 ## other branch's space
 ## other branch's space
