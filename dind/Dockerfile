@@ -338,6 +338,7 @@ RUN apt-get install -y \
     p7zip-full \
     pv \
     rsync \
+    sudo \
     && echo installed
 
 # not installed packages
@@ -390,7 +391,7 @@ RUN dpkg -i /session-manager-plugin.deb \
 
 # aws sam cli
 # sam --version command is for verify installation
-ADD https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip /aws-sam-cli-linux-x86_64.zip
+ADD ${GH}/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip /aws-sam-cli-linux-x86_64.zip
 RUN 7za x -osam-installer aws-sam-cli-linux-x86_64.zip \
     && ./sam-installer/install \
     && rm -rf sam-installer aws-sam-cli-linux-x86_64.zip \
@@ -399,7 +400,7 @@ RUN 7za x -osam-installer aws-sam-cli-linux-x86_64.zip \
 # q : csv (text) query
 ENV V=3.1.6
 ENV A=q-text-as-data-${V}-1.x86_64.deb
-ADD https://github.com/harelba/q/releases/download/v${V}/${A} /${A}
+ADD ${GH}/harelba/q/releases/download/v${V}/${A} /${A}
 RUN dpkg -i /${A} \
     && rm /${A}
 
@@ -465,7 +466,6 @@ RUN groupadd -g 1000 ${username} \
     -s /usr/local/bin/bash \
     -u 1000 \
     ${username} \
-    && apt-get install sudo \
     && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g') \
     && chmod 0440 /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g')
 
