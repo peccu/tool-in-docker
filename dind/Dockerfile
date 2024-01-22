@@ -294,6 +294,14 @@ RUN cd ${OUT} \
     && curl -sLo jq ${GH}/jqlang/jq/${RD}/jq-${V}/${A} \
     && chmod +x jq
 
+# install terraform
+ENV V=1.7.0
+ENV A=terraform_${V}_linux_amd64.zip
+ADD https://releases.hashicorp.com/terraform/${V}/${A} /${A}
+RUN cd ${OUT} \
+    && 7za x /${A} \
+    && rm /${A}
+
 ## other branch's space
 ## other branch's space
 
@@ -326,6 +334,32 @@ RUN cargo install the-way
 FROM base as dind
 ##################################################
 
+# install tools from apt
+# sort packages (ignore first line (apt-get) and last line (echo))
+# (sort-packages-in-dockerfile)
+RUN apt-get install -y \
+    bash-completion \
+    dnsutils \
+    iputils-ping \
+    nkf \
+    p7zip-full \
+    pv \
+    rsync \
+    && echo installed
+
+# not installed packages
+# do I use them?
+# list from amazon linux 2 yum pakage
+# need to update the pakage name
+# bc
+# emacs-nox
+# libevent
+# nmap
+# psmisc
+# python3-pip
+# whois
+# zsh
+
 # setup docker
 RUN apt-get install -y \
     ca-certificates \
@@ -349,11 +383,46 @@ RUN apt-get install \
 # install aws cli
 # https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 ADD https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip /awscliv2.zip
-RUN apt-get install \
-    unzip \
-    && unzip /awscliv2.zip \
+RUN 7za x /awscliv2.zip \
     && ./aws/install \
-    && rm -rf awscliv2.zip ./aws
+    && rm -rf /awscliv2.zip ./aws
+
+# install aws cli session manager plugin
+# uninstall via dpkg -r session-manager-plugin
+# session-manager-plugin command is for verify installation
+ADD https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb /session-manager-plugin.deb
+RUN dpkg -i /session-manager-plugin.deb \
+    && rm /session-manager-plugin.deb \
+    && session-manager-plugin
+
+# install aws sam cli
+# sam --version command is for verify installation
+ADD https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip /aws-sam-cli-linux-x86_64.zip
+RUN 7za x -osam-installer aws-sam-cli-linux-x86_64.zip \
+    && ./sam-installer/install \
+    && rm -rf sam-installer aws-sam-cli-linux-x86_64.zip \
+    && sam --version
+
+# install q
+ENV V=3.1.6
+ENV A=q-text-as-data-${V}-1.x86_64.deb
+ADD https://github.com/harelba/q/releases/download/v${V}/${A} /${A}
+RUN dpkg -i /${A} \
+    && rm /${A}
+
+# install chezmoi
+RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+
+# # this needs python3-pip package and maybe dont used in current situation
+# # install azure-cli percol, cfn-lint
+# # stick urllib3's version to ignore OpenSSL version error
+# # (sort-packages-in-dockerfile)
+# RUN pip3 install \
+#     azure-cli \
+#     cfn-lint \
+#     percol \
+#     urllib3==1.26.6 \
+#     && echo installed
 
 # copy from build layer
 COPY --from=build ${OUT}/tmux /usr/local/bin/
@@ -381,6 +450,7 @@ COPY --from=bin ${OUT}/tailwindcss /usr/local/bin/
 COPY --from=bin ${OUT}/watchexec /usr/local/bin/
 COPY --from=bin ${OUT}/ncdu /usr/local/bin/
 COPY --from=bin ${OUT}/jq /usr/local/bin/
+COPY --from=bin ${OUT}/terraform /usr/local/bin/
 # copy from golang layer
 COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 # COPY --from=go /go/bin/rain /usr/local/bin/rain

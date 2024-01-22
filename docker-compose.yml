@@ -39,6 +39,7 @@ services:
     #   - gitea
     #   - default
   cron:
+    profiles: ["cron"]
     build: build_cron
     restart: always
     volumes:
