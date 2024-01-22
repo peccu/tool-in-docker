@@ -292,6 +292,26 @@ ADD ${GH}/jqlang/jq/${RD}/jq-${V}/${A} ${OUT}/${B}
 RUN chmod +x ${OUT}/${B}
 
 ## other branch's space
+# https://github.com/adobe-fonts/source-han-sans/tree/release#otf
+ADD ${GH}/adobe-fonts/source-han-sans/raw/release/Variable/OTF/SourceHanSans-VF.otf ${OUT}/
+
+# https://github.com/tonsky/FiraCode
+RUN mkdir -p /tmp/fonts \
+    && curl -LO $(curl -s https://api.github.com/repos/tonsky/FiraCode/releases/latest | grep browser_download_url | awk '{print $2}' | tr -d '"' ) \
+    && 7za x Fira_Code_*.zip \
+    && mv variable_ttf/FiraCode-VF.ttf ${OUT} \
+    && rm Fira_Code_*.zip
+
+# FiraCode font (Nerd Font Ver.)
+ENV V=v3.1.1
+ENV A=FiraCode
+ADD ${GH}/ryanoasis/nerd-fonts/releases/download/${V}/${A}.tar.xz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && 7za x ${A}.tar.xz \
+    && tar xf ${A}.tar \
+    && mkdir ${OUT}/FiraCode \
+    && mv *.ttf ${OUT}/FiraCode \
+    && rm -rf /tmp/${A}
 ## other branch's space
 
 ##################################################
@@ -314,6 +334,9 @@ FROM rust:slim as rust
 RUN cargo install the-way
 
 ## other branch's space
+##################################################
+FROM peccu/emacs-wslg:buildenv as emacs-wslg
+##################################################
 ## other branch's space
 
 ##################################################
@@ -450,6 +473,26 @@ COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 COPY --from=rust /usr/local/cargo/bin/the-way /usr/local/bin/
 
 ## other branch's space
+# add fonts
+COPY --from=bin ${OUT}/SourceHanSans-VF.otf /usr/share/fonts/SourceHanSans-VF/
+COPY --from=bin ${OUT}/FiraCode /usr/share/fonts/
+COPY --from=bin ${OUT}/FiraCode-VF.ttf /usr/share/fonts/FiraCode/
+# fonts-takao : Japanese Font
+RUN apt-get install -y \
+    fontconfig \
+    fonts-takao \
+    && fc-cache -fv \
+    && fc-list
+
+# Emacs for WSLg related
+COPY --from=emacs-wslg /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/
+RUN apt-get install -y /tmp/emacs/emacs-wslg_29-1_amd64.deb
+
+# for vGPU container
+ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
+RUN apt-get install -y mesa-utils
+# test command
+# /usr/bin/glxinfo -B
 ## other branch's space
 
 # setup user environment

@@ -9,14 +9,14 @@ services:
     # image: peccu/tool-in-docker:emacs-x
     environment:
       - TOOLTYPE=tool
-      # # X11
-      # - DISPLAY
-      # # Wayland
-      # - WAYLAND_DISPLAY
-      # - XDG_RUNTIME_DIR
-      # # PulseAudio
-      # - PULSE_SERVER
-      # # Docker in Docker
+      # X11
+      - DISPLAY
+      # Wayland
+      - WAYLAND_DISPLAY
+      - XDG_RUNTIME_DIR
+      # PulseAudio
+      - PULSE_SERVER
+      # # Docker in Docker : this is default sock
       # - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - /:/mnt/host
@@ -28,13 +28,13 @@ services:
       - /tmp/tmux-${UID}:/tmp/tmux-${UID}
       - /clip:/clip
       - /open:/open
-      # # X11
-      # - /tmp/.X11-unix:/tmp/.X11-unix
-      # # Wayland and PulseAudio
-      # - /mnt/wslg:/mnt/wslg
-      # # vGPU
-      # - /dev/dxg:/dev/dxg
-      # - /usr/lib/wsl:/usr/lib/wsl
+      # X11
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      # Wayland and PulseAudio
+      - /mnt/wslg:/mnt/wslg
+      # vGPU
+      - /dev/dxg:/dev/dxg
+      - /usr/lib/wsl:/usr/lib/wsl
       # Docker in Docker
       # test by curl --unix-socket /var/run/docker.sock http://localhost/version
       - /var/run/docker.sock:/var/run/docker.sock
