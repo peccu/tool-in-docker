@@ -111,7 +111,7 @@ RUN mkdir -p /tmp/${A} \
 # install delta for git
 ENV V=0.16.5
 ENV A=delta-${V}-x86_64-unknown-linux-gnu
-# muls version
+# muls version for amazon linux?
 # ENV A=delta-${V}-x86_64-unknown-linux-musl
 RUN mkdir -p /tmp/${A} \
     && cd /tmp/${A} \
