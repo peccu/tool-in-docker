@@ -486,8 +486,12 @@ RUN apt-get install -y \
     && fc-list
 
 # Emacs for WSLg related
-COPY --from=emacs-wslg /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/
-RUN apt-get install -y /tmp/emacs/emacs-wslg_29-1_amd64.deb
+ENV V=29-1
+ENV A=emacs-wslg_${V}_amd64
+COPY --from=emacs-wslg /tmp/emacs/${A}.deb /tmp/${A}/
+RUN apt-get install -y
+    /tmp/${A}/${A}.deb \
+    && rm -rf /tmp/${A}
 
 # for vGPU container
 ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
