@@ -293,22 +293,25 @@ RUN chmod +x ${OUT}/${B}
 
 ## other branch's space
 # https://github.com/adobe-fonts/source-han-sans/tree/release#otf
-RUN mkdir -p /usr/share/fonts/SourceHanSans-VF/ \
-        && curl -Lo /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf \
-        https://github.com/adobe-fonts/source-han-sans/raw/release/Variable/OTF/SourceHanSans-VF.otf
+ADD ${GH}/adobe-fonts/source-han-sans/raw/release/Variable/OTF/SourceHanSans-VF.otf ${OUT}/
 
 # https://github.com/tonsky/FiraCode
 RUN mkdir -p /tmp/fonts \
-        && curl -LO $(curl -s https://api.github.com/repos/tonsky/FiraCode/releases/latest | grep browser_download_url | awk '{print $2}' | tr -d '"' ) \
-        && 7za x Fira_Code_*.zip \
-        && mkdir -p /usr/share/fonts/FilaCode/ \
-        && mv variable_ttf/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
+    && curl -LO $(curl -s https://api.github.com/repos/tonsky/FiraCode/releases/latest | grep browser_download_url | awk '{print $2}' | tr -d '"' ) \
+    && 7za x Fira_Code_*.zip \
+    && mv variable_ttf/FiraCode-VF.ttf ${OUT} \
+    && rm Fira_Code_*.zip
 
 # FiraCode font (Nerd Font Ver.)
-RUN mkdir -p /tmp/fonts \
-        && curl -LO https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraCode/Regular/complete/Fira%20Code%20Regular%20Nerd%20Font%20Complete.ttf \
-        && mkdir -p /usr/share/fonts/FilaCode/ \
-        && mv Fira%20Code%20Regular%20Nerd%20Font%20Complete.ttf "/usr/share/fonts/FilaCode/Fira Code Regular Nerd Font Complete.ttf"
+ENV V=v3.1.1
+ENV A=FiraCode
+ADD ${GH}/ryanoasis/nerd-fonts/releases/download/${V}/${A}.tar.xz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && 7za x ${A}.tar.xz \
+    && tar xf ${A}.tar \
+    && mkdir ${OUT}/FiraCode \
+    && mv *.ttf ${OUT}/FiraCode \
+    && rm -rf /tmp/${A}
 ## other branch's space
 
 ##################################################
@@ -471,22 +474,30 @@ COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 COPY --from=rust /usr/local/cargo/bin/the-way /usr/local/bin/
 
 ## other branch's space
-# Emacs for WSLg related
-COPY --from=emacs-wslg /tmp/emacs/emacs-29.0.60-1.amzn2.x86_64.rpm /tmp/emacs/
-RUN yum install -y /tmp/emacs/emacs-29.0.60-1.amzn2.x86_64.rpm
-
 # add fonts
-COPY --from=bin /usr/share/fonts/SourceHanSans-VF/SourceHanSans-VF.otf /usr/share/fonts/SourceHanSans-VF/
-COPY --from=bin /usr/share/fonts/FilaCode/FiraCode-VF.ttf /usr/share/fonts/FilaCode/
-COPY --from=bin ["/usr/share/fonts/FilaCode/Fira Code Regular Nerd Font Complete.ttf", "/usr/share/fonts/FilaCode/"]
-RUN fc-cache -fv && fc-list
+COPY --from=bin ${OUT}/SourceHanSans-VF.otf /usr/share/fonts/SourceHanSans-VF/
+COPY --from=bin ${OUT}/FiraCode /usr/share/fonts/
+COPY --from=bin ${OUT}/FiraCode-VF.ttf /usr/share/fonts/FiraCode/
+# fonts-takao : Japanese Font
+RUN apt-get install -y \
+    fontconfig \
+    fonts-takao \
+    && fc-cache -fv \
+    && fc-list
+
+# Emacs for WSLg related
+ENV V=29-1
+ENV A=emacs-wslg_${V}_amd64
+COPY --from=emacs-wslg /tmp/emacs/${A}.deb /tmp/${A}/
+RUN apt-get install -y \
+    /tmp/${A}/${A}.deb \
+    && rm -rf /tmp/${A}
 
 # for vGPU container
 ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
-# RUN yum install -y mesa-libGLw
-
-# chown
-RUN chown 1000.1000 /aws
+RUN apt-get install -y mesa-utils
+# test command
+# /usr/bin/glxinfo -B
 ## other branch's space
 
 # setup user environment
