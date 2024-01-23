@@ -1,233 +1,295 @@
 ##################################################
-FROM amazon/aws-cli:latest as build
+FROM ubuntu:22.04 as base
 ##################################################
 
-RUN yum update -y \
-    && yum install -y make gcc tar gzip p7zip
+ENV DEBIAN_FRONTEND=noninteractive
 
-# install datamash
-ENV VER_datamash=1.8
-RUN set -x && cd /tmp \
-    && curl -LO http://ftp.gnu.org/gnu/datamash/datamash-${VER_datamash}.tar.gz \
-    && tar xzf datamash-${VER_datamash}.tar.gz \
-    && cd datamash-${VER_datamash} \
-    && ./configure \
-    && make -j$(nproc) \
-    && make install
+RUN apt-get update
+RUN apt-get install -y \
+    curl
 
-# bash 5.2 for zoxide <Space>+<Tab>
-# with curses option is for readline's "horizontal-scroll off"
-# ref. https://lists.gnu.org/archive/html/bug-readline/2015-11/msg00006.html
-ENV VER_bash=5.2
-RUN yum install -y ncurses-devel
-RUN curl -O http://ftp.gnu.org/gnu/bash/bash-${VER_bash}.tar.gz \
-    && tar xf bash-${VER_bash}.tar.gz \
-    && cd bash-${VER_bash} \
-    && ./configure --with-curses \
-    && make -j$(nproc) \
-    && make install \
-    && rm -rf bash-${VER_bash}.tar.gz bash-${VER_bash}
+# support variables
+ENV GH=https://github.com
+ENV RD=releases/download
 
-# tmux
-ENV VER_tmux=3.3a
-# ncurses-devel is already installed for bash
-RUN yum install -y libevent-devel ncurses-devel gcc make bison pkg-config
-RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${VER_tmux}.tar.gz \
-    && tar xf tmux-${VER_tmux}.tar.gz \
-    && cd tmux-${VER_tmux} \
-    && ./configure \
-    && make -j$(nproc) \
-    && make install \
-    && cd .. \
-    && rm -rf tmux-${VER_tmux}{,.tar.gz}
-
-# reptyr PID
-# re-attach disowned process
-ENV VER_reptyr=0.9.0
-RUN curl -LO https://github.com/nelhage/reptyr/archive/refs/tags/reptyr-${VER_reptyr}.tar.gz \
-    && tar xf reptyr-${VER_reptyr}.tar.gz \
-    && cd reptyr-reptyr-${VER_reptyr} \
-    && make -j$(nproc) \
-    && mv reptyr /usr/local/bin/
+# binary output directory
+ENV OUT=/a
+RUN mkdir -p $OUT
 
 ## other branch's space
 ## other branch's space
 
 ##################################################
-FROM ubuntu:20.04 as build-for-ubuntu
+FROM base as build
 ##################################################
 
-# tmux
-ENV VER_tmux=3.3a
+# tmux : terminal multiplexer
 # some package depends on tzdata so need to specify TZ
 # https://serverfault.com/a/1016972
-ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Tokyo
-RUN apt-get update \
-    && apt-get install -y curl libevent-dev ncurses-dev build-essential bison pkg-config
-RUN curl -LO https://github.com/tmux/tmux/releases/download/${VER_tmux}/tmux-${VER_tmux}.tar.gz \
-    && tar xf tmux-${VER_tmux}.tar.gz \
-    && cd tmux-${VER_tmux} \
+ENV V=3.3a
+ENV A=tmux-${V}
+# (sort-packages-in-dockerfile)
+RUN apt-get install -y \
+    bison \
+    build-essential \
+    libevent-dev \
+    ncurses-dev \
+    pkg-config \
+    && echo installed
+
+ADD ${GH}/tmux/tmux/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xf ${A}.tar.gz \
+    && cd ${A} \
     && ./configure --enable-static \
     && make -j$(nproc) \
     && make install \
-    && cd .. \
-    && rm -rf tmux-${VER_tmux}{,.tar.gz}
+    && mv /usr/local/bin/tmux ${OUT} \
+    && rm -rf /tmp/${A}
+
+# reptyr : re-attach disowned process
+# USAGE: reptyr PID
+ENV V=0.9.0
+ENV A=reptyr-${V}
+ADD ${GH}/nelhage/reptyr/archive/refs/tags/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xf ${A}.tar.gz \
+    && cd reptyr-${A} \
+    && make -j$(nproc) \
+    && mv reptyr ${OUT} \
+    && rm -rf /tmp/${A}
+
+# datamash : ? csv aggregator ?
+ENV V=1.8
+ENV A=datamash-${V}
+ADD http://ftp.gnu.org/gnu/datamash/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}.tar.gz \
+    && cd ${A} \
+    && ./configure \
+    && make -j$(nproc) \
+    && make install \
+    && mv /usr/local/bin/datamash ${OUT} \
+    && rm -rf /tmp/${A}
+
+# bash 5.2 : newer version for zoxide <Space>+<Tab> key
+# with curses option is for readline's "horizontal-scroll off"
+# ref. https://lists.gnu.org/archive/html/bug-readline/2015-11/msg00006.html
+ENV V=5.2
+ENV A=bash-${V}
+# RUN apt-get install libncurses5-dev
+ADD http://ftp.gnu.org/gnu/bash/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xf ${A}.tar.gz \
+    && cd ${A} \
+    && ./configure --with-curses \
+    && make -j$(nproc) \
+    && make install \
+    && mv /usr/local/bin/bash ${OUT} \
+    && rm -rf /tmp/${A}
 
 ## other branch's space
 ## other branch's space
 
 ##################################################
-FROM amazon/aws-cli:latest as bin
+FROM base as bin
 ##################################################
 
-# epel-release is for nkf p7zip
-RUN amazon-linux-extras enable epel \
-    && yum clean metadata && yum install -y epel-release \
-    && yum update -y \
-    && yum install -y \
-    tar p7zip gzip xz
+#------------------
+# Archived binary
+#------------------
+RUN apt-get install -y p7zip-full
 
-# install ripgrep
-ENV VER_RG=13.0.0
-RUN cd /usr/local \
-    && curl -LO https://github.com/BurntSushi/ripgrep/releases/download/${VER_RG}/ripgrep-${VER_RG}-x86_64-unknown-linux-musl.tar.gz \
-    && tar xzf ripgrep-* \
-    && cd bin \
-    && mv ../ripgrep-*/rg ./\
-    && rm -rf ../ripgrep-*
+# ripgrep : grep alternative
+# https://github.com/BurntSushi/ripgrep/releases
+ENV V=14.1.0
+ENV A=ripgrep-${V}-x86_64-unknown-linux-musl
+ADD ${GH}/BurntSushi/ripgrep/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}* \
+    && mv ${A}/rg ${OUT} \
+    && rm -rf /tmp/${A}
 
-# install delta for git
-ENV VER_delta=0.16.5
-# RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
-#     && tar xzf delta-${VER_delta}-x86_64-unknown-linux-gnu.tar.gz \
-#     && mv delta-${VER_delta}-x86_64-unknown-linux-gnu/delta /usr/local/bin \
-#     && rm -rf delta-${VER_delta}-x86_64-unknown-linux-gnu*
+# delta : for git diff
+ENV V=0.16.5
+ENV A=delta-${V}-x86_64-unknown-linux-gnu
 # muls version for amazon linux?
-RUN curl -LO https://github.com/dandavison/delta/releases/download/${VER_delta}/delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
-        && tar xzf delta-${VER_delta}-x86_64-unknown-linux-musl.tar.gz \
-        && mv delta-${VER_delta}-x86_64-unknown-linux-musl/delta /usr/local/bin \
-        && rm -rf delta-${VER_delta}-x86_64-unknown-linux-musl*
+# ENV A=delta-${V}-x86_64-unknown-linux-musl
+ADD ${GH}/dandavison/delta/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}* \
+    && mv ${A}/delta ${OUT} \
+    && rm -rf /tmp/${A}
 
-# install atuin
-ENV VER_atuin=v12.0.0
-RUN curl -LO https://github.com/ellie/atuin/releases/download/${VER_atuin}/atuin-${VER_atuin}-x86_64-unknown-linux-gnu.tar.gz \
-    && tar xzf atuin-${VER_atuin}-x86_64-unknown-linux-gnu.tar.gz \
-    && mv atuin-${VER_atuin}-x86_64-unknown-linux-gnu/atuin /usr/local/bin \
-    && rm -rf atuin-${VER_atuin}-x86_64-unknown-linux-gnu*
+# unison : bi directonal file sync
+# https://github.com/bcpierce00/unison/releases
+ENV V=2.53.3
+ENV A=unison-${V}-ubuntu-x86_64
+ADD ${GH}/bcpierce00/unison/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}* \
+    && mv bin/unison ${OUT} \
+    && rm -rf /tmp/${A}
 
-ENV VER_fzf=0.38.0
-RUN curl -LO https://github.com/junegunn/fzf/releases/download/${VER_fzf}/fzf-${VER_fzf}-linux_amd64.tar.gz \
-    && tar xzf fzf-${VER_fzf}-linux_amd64.tar.gz \
-    && mv fzf /usr/local/bin \
-    && rm -rf fzf-${VER_fzf}-linux_amd64.tar.gz
+# atuin : ?
+ENV V=v12.0.0
+ENV A=atuin-${V}-x86_64-unknown-linux-gnu
+ADD ${GH}/ellie/atuin/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}.tar.gz \
+    && mv ${A}/atuin ${OUT} \
+    && rm -rf /tmp/${A}
 
-ENV VER_xsv=0.13.0
-RUN curl -LO https://github.com/BurntSushi/xsv/releases/download/${VER_xsv}/xsv-${VER_xsv}-x86_64-unknown-linux-musl.tar.gz \
-    && tar xzf xsv-${VER_xsv}-x86_64-unknown-linux-musl.tar.gz \
-    && mv xsv /usr/local/bin \
-    && rm -rf xsv-${VER_xsv}-x86_64-unknown-linux-musl.tar.gz
+# fzf : fuzzy search. mainly used in history search (C-r)
+ENV V=0.38.0
+ENV A=fzf-${V}-linux_amd64
+ADD ${GH}/junegunn/fzf/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}.tar.gz \
+    && mv fzf ${OUT} \
+    && rm -rf /tmp/${A}
 
-ENV VER_skim=v0.9.4
-RUN curl -LO https://github.com/lotabout/skim/releases/download/${VER_skim}/skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz \
-    && tar xzf skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz \
-    && mv sk /usr/local/bin \
-    && rm -rf skim-${VER_skim}-x86_64-unknown-linux-musl.tar.gz
+# skim : fuzzy search ?
+ENV V=v0.9.4
+ENV A=skim-${V}-x86_64-unknown-linux-musl
+ADD ${GH}/lotabout/skim/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}.tar.gz \
+    && mv sk ${OUT} \
+    && rm -rf /tmp/${A}
 
-ENV VER_bat=v0.22.1
-RUN curl -LO https://github.com/sharkdp/bat/releases/download/${VER_bat}/bat-${VER_bat}-x86_64-unknown-linux-musl.tar.gz \
-    && tar xzf bat-${VER_bat}-x86_64-unknown-linux-musl.tar.gz \
-    && mv bat-${VER_bat}-x86_64-unknown-linux-musl/bat /usr/local/bin \
-    && rm -rf bat-${VER_bat}-x86_64-unknown-linux-musl bat-${VER_bat}-x86_64-unknown-linux-musl.tar.gz
+# xsv : csv tool
+ENV V=0.13.0
+ENV A=xsv-${V}-x86_64-unknown-linux-musl
+ADD ${GH}/BurntSushi/xsv/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}.tar.gz \
+    && mv xsv ${OUT} \
+    && rm -rf /tmp/${A}
 
-ENV VER_fd=v8.6.0
-RUN curl -LO https://github.com/sharkdp/fd/releases/download/${VER_fd}/fd-${VER_fd}-x86_64-unknown-linux-musl.tar.gz \
-    && tar xzf fd-${VER_fd}-x86_64-unknown-linux-musl.tar.gz \
-    && mv fd-${VER_fd}-x86_64-unknown-linux-musl/fd /usr/local/bin \
-    && rm -rf fd-${VER_fd}-x86_64-unknown-linux-musl fd-${VER_fd}-x86_64-unknown-linux-musl.tar.gz
+# bat : cat alternative
+ENV V=v0.22.1
+ENV A=bat-${V}-x86_64-unknown-linux-musl
+ADD ${GH}/sharkdp/bat/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}.tar.gz \
+    && mv ${A}/bat ${OUT} \
+    && rm -rf /tmp/${A}
 
-ENV VER_jless=v0.8.0
-RUN curl -LO https://github.com/PaulJuliusMartinez/jless/releases/download/${VER_jless}/jless-${VER_jless}-x86_64-unknown-linux-gnu.zip \
-    && 7za x jless-${VER_jless}-x86_64-unknown-linux-gnu.zip \
+# fd : find alternative
+ENV V=v8.6.0
+ENV A=fd-${V}-x86_64-unknown-linux-musl
+ADD ${GH}/sharkdp/fd/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}.tar.gz \
+    && mv ${A}/fd ${OUT} \
+    && rm -rf /tmp/${A}
+
+# jless : less command for JSON
+ENV V=v0.8.0
+ENV A=jless-${V}-x86_64-unknown-linux-gnu
+ADD ${GH}/PaulJuliusMartinez/jless/${RD}/${V}/${A}.zip /tmp/${A}/
+RUN cd /tmp/${A} \
+    && 7za x ${A}.zip \
     && chmod +x jless \
-    && mv jless /usr/local/bin \
-    && rm -rf jless-${VER_jless}-x86_64-unknown-linux-gnu.zip
-
-ENV VER_jd=v1.6.1
-RUN cd /usr/local/bin \
-    && curl -Lo jd https://github.com/josephburnett/jd/releases/download/${VER_jd}/jd-amd64-linux \
-    && chmod +x jd
+    && mv jless ${OUT} \
+    && rm -rf /tmp/${A}
 
 ## CloudFormation related
-# this version is old. fetch on golang layer
-# # install rain
-# # https://github.com/aws-cloudformation/rain
-# ENV VER_rain=v1.2.0
-# RUN curl -LO https://github.com/aws-cloudformation/rain/releases/download/${VER_rain}/rain-${VER_rain}_linux-amd64.zip \
-#         && 7za x rain-${VER_rain}_linux-amd64.zip \
-#         && mv rain-${VER_rain}_linux-amd64/rain /usr/local/bin \
-#         && rm -rf rain-${VER_rain}_linux-amd64 rain-${VER_rain}_linux-amd64.zip \
-#         && rain --version \
-#         && curl -Lo /usr/share/bash-completion/completions/rain https://github.com/aws-cloudformation/rain/raw/main/docs/bash_completion.sh
-# but in golang layer need machine power, so back to here with forked repo's binary
-# install rain
-# https://github.com/peccu/rain
-ENV VER_rain=v1.3.0
-RUN curl -LO https://github.com/peccu/rain/releases/download/${VER_rain}/rain-${VER_rain}_linux-amd64.zip \
-    && 7za x rain-${VER_rain}_linux-amd64.zip \
-    && mv rain-${VER_rain}_linux-amd64/rain /usr/local/bin \
-    && rm -rf rain-${VER_rain}_linux-amd64 rain-${VER_rain}_linux-amd64.zip \
-    && rain --version \
-    && curl -Lo /usr/share/bash-completion/completions/rain https://github.com/peccu/rain/raw/${VER_rain}/docs/bash_completion.sh
+# rain : Cfn support tool
+# https://github.com/aws-cloudformation/rain
+ENV V=v1.7.5
+ENV A=rain-${V}_linux-amd64
+ADD ${GH}/aws-cloudformation/rain/${RD}/${V}/${A}.zip /tmp/${A}/
+RUN cd /tmp/${A} \
+    && 7za x ${A}.zip \
+    && mv ${A}/rain ${OUT} \
+    && rm -rf ${A} ${A}.zip \
+    && ${OUT}/rain --version
+# bash completions for rain
+ADD ${GH}/aws-cloudformation/rain/raw/${V}/docs/bash_completion.sh /usr/share/bash-completion/completions/rain
 
-# install template builder
+# cfn-skeleton : Cfn template builder
 # https://github.com/awslabs/aws-cloudformation-template-builder
-ENV VER_cfn_skelton=v0.2.0
-RUN curl -LO https://github.com/awslabs/aws-cloudformation-template-builder/releases/download/${VER_cfn_skelton}/cfn-skeleton-${VER_cfn_skelton}_linux-amd64.zip \
-    && 7za x cfn-skeleton-${VER_cfn_skelton}_linux-amd64.zip \
-    && mv cfn-skeleton-${VER_cfn_skelton}_linux-amd64/cfn-skeleton /usr/local/bin \
-    && rm -rf cfn-skeleton-${VER_cfn_skelton}_linux-amd64 cfn-skeleton-${VER_cfn_skelton}_linux-amd64.zip
+ENV V=v0.2.0
+ENV A=cfn-skeleton-${V}_linux-amd64
+ADD ${GH}/awslabs/aws-cloudformation-template-builder/${RD}/${V}/${A}.zip /tmp/${A}/
+RUN cd /tmp/${A} \
+    && 7za x ${A}.zip \
+    && mv ${A}/cfn-skeleton ${OUT} \
+    && rm -rf /tmp/${A}
 
-# install template formatter
+# cfn-format : Cfn template formatter
 # https://github.com/awslabs/aws-cloudformation-template-formatter
-ENV VER_cfn_format=v1.1.2-1
-RUN curl -LO https://github.com/awslabs/aws-cloudformation-template-formatter/releases/download/${VER_cfn_format}/cfn-format-${VER_cfn_format}_linux-amd64.zip \
-    && 7za x cfn-format-${VER_cfn_format}_linux-amd64.zip \
-    && mv cfn-format-${VER_cfn_format}_linux-amd64/cfn-format /usr/local/bin \
-    && rm -rf cfn-format-${VER_cfn_format}_linux-amd64 cfn-format-${VER_cfn_format}_linux-amd64.zip
+ENV V=v1.1.2-1
+ENV A=cfn-format-${V}_linux-amd64
+ADD ${GH}/awslabs/aws-cloudformation-template-formatter/${RD}/${V}/${A}.zip /tmp/${A}/
+RUN cd /tmp/${A} \
+    && 7za x ${A}.zip \
+    && mv ${A}/cfn-format ${OUT} \
+    && rm -rf /tmp/${A}
 
-ENV VER_zoxide=0.9.0
-RUN curl -LO https://github.com/ajeetdsouza/zoxide/releases/download/v${VER_zoxide}/zoxide-${VER_zoxide}-x86_64-unknown-linux-musl.tar.gz \
-    && mkdir zoxide \
-    && cd zoxide \
-    && tar xzf ../zoxide-${VER_zoxide}-x86_64-unknown-linux-musl.tar.gz \
-    && mv zoxide /usr/local/bin \
-    && cd .. \
-    && rm -rf zoxide zoxide-${VER_zoxide}-x86_64-unknown-linux-musl.tar.gz
+# zoxide : auto jump history
+ENV V=0.9.0
+ENV A=zoxide-${V}-x86_64-unknown-linux-musl
+ADD ${GH}/ajeetdsouza/zoxide/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}.tar.gz \
+    && mv zoxide ${OUT} \
+    && rm -rf /tmp/${A}
 
-# install Tailwind CSS Standalone CLI
-RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
-    && chmod +x tailwindcss-linux-x64 \
-    && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
+# watchexec : watch file event and exec command
+ENV V=1.21.0
+ENV A=watchexec-${V}-x86_64-unknown-linux-musl
+ADD ${GH}/watchexec/watchexec/${RD}/v${V}/${A}.tar.xz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && 7za x ${A}.tar.xz \
+    && tar xf ${A}.tar \
+    && cd ${A} \
+    && mv watchexec ${OUT} \
+    && rm -rf /tmp/${A}
 
-ENV VER_watchexec=1.21.0
-RUN curl -LO https://github.com/watchexec/watchexec/releases/download/v${VER_watchexec}/watchexec-${VER_watchexec}-x86_64-unknown-linux-musl.tar.xz \
-    && tar xf watchexec-${VER_watchexec}-x86_64-unknown-linux-musl.tar.xz \
-    && cd watchexec-${VER_watchexec}-x86_64-unknown-linux-musl \
-    && mv watchexec /usr/local/bin \
-    && cd .. \
-    && rm -rf watchexec-${VER_watchexec}-x86_64-unknown-linux-musl{,.tar.xz}
+# ncdu : NCurses Disk Usage
+ENV V=2.2.1
+ENV A=ncdu-${V}-linux-x86_64
+ADD https://dev.yorhel.nl/download/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xf ${A}.tar.gz \
+    && mv ncdu ${OUT} \
+    && rm -rf /tmp/${A}
 
-# NCurses Disk Usage
-ENV VER_ncdu=2.2.1
-RUN curl -sLO https://dev.yorhel.nl/download/ncdu-${VER_ncdu}-linux-x86_64.tar.gz \
-    && tar xf ncdu-${VER_ncdu}-linux-x86_64.tar.gz \
-    && mv ncdu /usr/local/bin/
+# terraform : IaC
+ENV V=1.7.0
+ENV A=terraform_${V}_linux_amd64.zip
+ADD https://releases.hashicorp.com/terraform/${V}/${A} /${A}
+RUN cd ${OUT} \
+    && 7za x /${A} \
+    && rm /${A}
 
-# install JQ latest version
-ENV VER_jq=1.6
-RUN curl -sLo /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/jq-${VER_jq}/jq-linux64 \
-    && chmod +x /usr/local/bin/jq
+#---------------
+# Direct binary
+#---------------
+
+# jd : ?
+ENV V=v1.6.1
+ENV A=jd-amd64-linux
+ENV B=jd
+ADD ${GH}/josephburnett/jd/${RD}/${V}/${A} ${OUT}/${B}
+RUN chmod +x ${OUT}/${B}
+
+# tailwindcss : Tailwind CSS Standalone CLI
+ENV A=tailwindcss-linux-x64
+ENV B=tailwindcss
+ADD ${GH}/tailwindlabs/tailwindcss/releases/latest/download/${A} ${OUT}/${B}
+RUN chmod +x ${OUT}/${B}
+
+# jq : json query
+ENV V=1.6
+ENV A=jq-linux64
+ENV B=jq
+ADD ${GH}/jqlang/jq/${RD}/jq-${V}/${A} ${OUT}/${B}
+RUN chmod +x ${OUT}/${B}
 
 ## other branch's space
 ## other branch's space
@@ -236,149 +298,182 @@ RUN curl -sLo /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/j
 FROM golang:latest as go
 ##################################################
 
+# git-xlsx-textconv : git diff xlsx file
 # https://stackoverflow.com/a/72742770
 ENV GOPROXY=direct
 RUN go install -v github.com/tokuhirom/git-xlsx-textconv@latest
-# this needs machine power
-# moved to bin layer
-# RUN go install -v github.com/aws-cloudformation/rain/cmd/rain@main
 
 ## other branch's space
 ## other branch's space
 
 ##################################################
-FROM amazon/aws-cli:latest as rust
+FROM rust:slim as rust
 ##################################################
 
-RUN yum install -y gcc
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-RUN source /root/.cargo/env \
-    && cargo install the-way
+# the-way : snippet manager
+RUN cargo install the-way
 
 ## other branch's space
 ## other branch's space
 
 ##################################################
-FROM amazon/aws-cli:latest
+FROM base as dind
 ##################################################
 
-# epel-release is for nkf p7zip
-RUN amazon-linux-extras enable epel \
-    && yum clean metadata && yum install -y epel-release \
-    && yum update -y \
-    && yum install -y \
+# install tools from apt
+# |> bash-completion : completions
+# |> dnsutils (dig, nslookup)
+# |> iputils-ping (ping)
+# |> nkf
+# |> p7zip-full (7za)
+# |> pv : progress viewer
+# |> rsync
+# sort packages (ignore first line (apt-get) and last line (echo))
+# (sort-packages-in-dockerfile)
+RUN apt-get install -y \
     bash-completion \
-    bash-completion-extras \
-    bc \
-    bind-utils \
-    emacs-nox \
-    git \
-    iputils \
-    libevent \
+    dnsutils \
+    iputils-ping \
     nkf \
-    nmap \
-    openssl \
-    p7zip \
-    procps \
-    psmisc \
+    p7zip-full \
     pv \
-    python2-pip \
-    python3 \
-    python3-pip \
     rsync \
     sudo \
-    tar \
-    which \
-    whois \
-    yum-utils \
-    zsh
+    && echo installed
 
-# install q
-ENV VER_q=3.1.6
-RUN curl -LO https://github.com/harelba/q/releases/download/v${VER_q}/q-text-as-data-${VER_q}.x86_64.rpm \
-    && rpm -ivh q-text-as-data-*.rpm \
-    && rm q-text-as-data-*.rpm
+# not installed packages
+# do I use them?
+# list from amazon linux 2 yum pakage
+# need to update the pakage name
+# bc
+# emacs-nox
+# libevent
+# nmap
+# psmisc
+# python3-pip
+# whois
+# zsh
 
-# install aws cli session manager plugin
-RUN curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.rpm" -o "session-manager-plugin.rpm" \
-    && yum install -y session-manager-plugin.rpm \
-    && rm session-manager-plugin.rpm
+# docker
+RUN apt-get install -y \
+    ca-certificates \
+    gnupg \
+    && install -m 0755 -d /etc/apt/keyrings \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
+    && chmod a+r /etc/apt/keyrings/docker.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+    > /etc/apt/sources.list.d/docker.list \
+    && apt-get update \
+    && apt-get install docker-ce docker-ce-cli  docker-buildx-plugin docker-compose-plugin -y
 
-# install aws sam cli
-RUN curl -LO https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip \
-    && 7za x aws-sam-cli-linux-x86_64.zip -o./sam-installation \
-    && ./sam-installation/install \
-    && rm -rf sam-installation aws-sam-cli-linux-x86_64.zip \
+# setup locale en_US.UTF-8
+# https://stackoverflow.com/a/55077451
+RUN apt-get install -y \
+    locales \
+    && locale-gen en_US.UTF-8 \
+    && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
+    && echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
+# aws cli
+# https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+ADD https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip /awscliv2.zip
+RUN 7za x /awscliv2.zip \
+    && ./aws/install \
+    && rm -rf /awscliv2.zip ./aws
+
+# aws cli session manager plugin
+# uninstall via dpkg -r session-manager-plugin
+# session-manager-plugin command is for verify installation
+ADD https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb /session-manager-plugin.deb
+RUN dpkg -i /session-manager-plugin.deb \
+    && rm /session-manager-plugin.deb \
+    && session-manager-plugin
+
+# aws sam cli
+# sam --version command is for verify installation
+ADD ${GH}/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip /aws-sam-cli-linux-x86_64.zip
+RUN 7za x -osam-installer aws-sam-cli-linux-x86_64.zip \
+    && ./sam-installer/install \
+    && rm -rf sam-installer aws-sam-cli-linux-x86_64.zip \
     && sam --version
 
-# install azure-cli percol, cfn-lint
-# stick urllib3's version to ignore OpenSSL version error
-RUN pip3 install azure-cli percol cfn-lint urllib3==1.26.6
+# q : csv (text) query
+ENV V=3.1.6
+ENV A=q-text-as-data-${V}-1.x86_64.deb
+ADD ${GH}/harelba/q/releases/download/v${V}/${A} /${A}
+RUN dpkg -i /${A} \
+    && rm /${A}
 
-# install terraform
-RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo \
-    && yum -y install terraform
-
-# zoxide
-# RUN curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
-# moved to bin layer
-
-# install chezmoi
+# chezmoi : dotfiles manager
 RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 
-# copy datamash from build layer
-COPY --from=build /usr/local/bin/datamash /usr/local/bin/
-COPY --from=build /usr/local/bin/bash /usr/local/bin/
-COPY --from=build /usr/local/bin/tmux /usr/local/bin/
-COPY --from=build /usr/local/bin/reptyr /usr/local/bin/
-# copy from build for ubuntu layer
-COPY --from=build-for-ubuntu /usr/local/bin/tmux /usr/local/bin/tmux-ubuntu
+# # this needs python3-pip package and maybe dont used in current situation
+# # install azure-cli percol, cfn-lint
+# # stick urllib3's version to ignore OpenSSL version error
+# # (sort-packages-in-dockerfile)
+# RUN pip3 install \
+#     azure-cli \
+#     cfn-lint \
+#     percol \
+#     urllib3==1.26.6 \
+#     && echo installed
+
+# copy from build layer
+COPY --from=build ${OUT}/bash /usr/local/bin/
+COPY --from=build ${OUT}/datamash /usr/local/bin/
+COPY --from=build ${OUT}/reptyr /usr/local/bin/
+COPY --from=build ${OUT}/tmux /usr/local/bin/
+# copy from bin layer
+COPY --from=bin ${OUT}/atuin /usr/local/bin/
+COPY --from=bin ${OUT}/bat /usr/local/bin/
+COPY --from=bin ${OUT}/cfn-format /usr/local/bin/
+COPY --from=bin ${OUT}/cfn-skeleton /usr/local/bin/
+COPY --from=bin ${OUT}/delta /usr/local/bin/
+COPY --from=bin ${OUT}/fd /usr/local/bin/
+COPY --from=bin ${OUT}/fzf /usr/local/bin/
+COPY --from=bin ${OUT}/jd /usr/local/bin/
+COPY --from=bin ${OUT}/jless /usr/local/bin/
+COPY --from=bin ${OUT}/jq /usr/local/bin/
+COPY --from=bin ${OUT}/ncdu /usr/local/bin/
+COPY --from=bin ${OUT}/rain /usr/local/bin/
+COPY --from=bin ${OUT}/rg /usr/local/bin/
+COPY --from=bin ${OUT}/sk /usr/local/bin/
+COPY --from=bin ${OUT}/tailwindcss /usr/local/bin/
+COPY --from=bin ${OUT}/terraform /usr/local/bin/
+COPY --from=bin ${OUT}/unison /usr/local/bin/
+COPY --from=bin ${OUT}/watchexec /usr/local/bin/
+COPY --from=bin ${OUT}/xsv /usr/local/bin/
+COPY --from=bin ${OUT}/zoxide /usr/local/bin/
+COPY --from=bin /usr/share/bash-completion/completions/rain /usr/share/bash-completion/completions/
 # copy from golang layer
 COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
-# COPY --from=go /go/bin/rain /usr/local/bin/rain
-COPY --from=rust /root/.cargo/bin/the-way /usr/local/bin/
-# copy from bin layer
-COPY --from=bin /usr/local/bin/rg /usr/local/bin/
-# delta for git
-COPY --from=bin /usr/local/bin/delta /usr/local/bin/
-COPY --from=bin /usr/local/bin/atuin /usr/local/bin/
-# # copy fzf from bin layer
-# -> skim
-COPY --from=bin /usr/local/bin/fzf /usr/local/bin/
-COPY --from=bin /usr/local/bin/xsv /usr/local/bin/
-COPY --from=bin /usr/local/bin/sk /usr/local/bin/
-COPY --from=bin /usr/local/bin/bat /usr/local/bin/
-COPY --from=bin /usr/local/bin/fd /usr/local/bin/
-COPY --from=bin /usr/local/bin/jless /usr/local/bin/
-COPY --from=bin /usr/local/bin/rain /usr/local/bin/
-COPY --from=bin /usr/local/bin/cfn-skeleton /usr/local/bin/
-COPY --from=bin /usr/local/bin/cfn-format /usr/local/bin/
-COPY --from=bin /usr/local/bin/jd /usr/local/bin/
-COPY --from=bin /usr/local/bin/zoxide /usr/local/bin/
-COPY --from=bin /usr/local/bin/tailwindcss /usr/local/bin/
-COPY --from=bin /usr/local/bin/watchexec /usr/local/bin/
-COPY --from=bin /usr/local/bin/ncdu /usr/local/bin/
-COPY --from=bin /usr/local/bin/jq /usr/local/bin/
+# copy from rust layer
+COPY --from=rust /usr/local/cargo/bin/the-way /usr/local/bin/
 
 ## other branch's space
 ## other branch's space
 
 # setup user environment
 ARG username=user
+# /usr/local/bin/bash has built in build layer
+ARG homedir=/mnt/c/Users
+RUN mkdir -p ${homedir}
 RUN groupadd -g 1000 ${username} \
     && useradd \
-    -d /home/${username} \
+    -d ${homedir}/${username} \
     -g 1000 \
     -lMN \
     -s /usr/local/bin/bash \
     -u 1000 \
     ${username} \
-    && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${username} \
-    && chmod 0440 /etc/sudoers.d/${username}
+    && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g') \
+    && chmod 0440 /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g')
+
+# add user to docker group for access to docker
+RUN usermod -a -G docker ${username}
 
 USER ${username}
 STOPSIGNAL SIGKILL
-VOLUME ["/home/${username}"]
-WORKDIR /home/${username}
+VOLUME ["${homedir}/${username}"]
+WORKDIR ${homedir}/${username}
 ENTRYPOINT ["/usr/bin/sleep", "infinity"]
-# ENTRYPOINT ["/usr/local/bin/bash"]
