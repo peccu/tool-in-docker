@@ -452,7 +452,7 @@ COPY --from=rust /usr/local/cargo/bin/the-way /usr/local/bin/
 
 ## other branch's space
 # https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-ubuntu
-RUN apt install -y
+RUN apt install -y \
     software-properties-common \
     && add-apt-repository --yes --update ppa:ansible/ansible \
     && apt install -y \
