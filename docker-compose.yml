@@ -2,7 +2,11 @@ version: '3'
 services:
   app:
     container_name: tool-in-docker
-    # build: build
+    # build:
+    #   context: build
+    #   args:
+    #     username: peccu
+    #     homedir: /mnt/c/Users
     image: peccu/tool-in-docker:emacs-x
     environment:
       - TOOLTYPE=tool
@@ -13,14 +17,18 @@ services:
       - XDG_RUNTIME_DIR
       # PulseAudio
       - PULSE_SERVER
+      # # Docker in Docker : this is default sock
+      # - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - /:/mnt/host
-      - ~:/home/user
+      # for mount local path into container
+      - ~:$HOME
       # for chezmoi cd
       - /run/user/1000:/run/user/1000
       # tmux UID is defined in .env file
       - /tmp/tmux-${UID}:/tmp/tmux-${UID}
       - /clip:/clip
+      - /open:/open
       # X11
       - /tmp/.X11-unix:/tmp/.X11-unix
       # Wayland and PulseAudio
@@ -28,6 +36,9 @@ services:
       # vGPU
       - /dev/dxg:/dev/dxg
       - /usr/lib/wsl:/usr/lib/wsl
+      # Docker in Docker
+      # test by curl --unix-socket /var/run/docker.sock http://localhost/version
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 8080:8080
     # working_dir: /root
