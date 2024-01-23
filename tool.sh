@@ -9,7 +9,7 @@ source $BASEDIR/.tool_functions.sh
 # ignore when execed after 10 seconds
 restarttime=10
 launch=$(date "+%s")
-wd=$(pwd | sed "s|$(echo $(cd;pwd))|/home/user|")
+wd=$(pwd)
 
 docker_exec "$wd" "$@" \
     && : \

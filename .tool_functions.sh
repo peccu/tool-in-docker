@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- shell-script -*-
 COMPOSE_FILE_PATH=$BASEDIR/docker-compose.yml
-COMPOSE_FILE2_PATH=$BASEDIR/docker-compose-dind.yml
+COMPOSE_FILE2_PATH=$BASEDIR/docker-compose-ext.yml
 
 function docker_compose(){
     if [ -f ${COMPOSE_FILE2_PATH} ]
@@ -41,19 +41,14 @@ function _docker_exec(){
 function docker_exec(){
     wd=$1
     shift
-    gid=$(id -g)
+    # for dind
+    gid=docker
     _docker_exec $gid /usr/local/bin/bash "$wd"
     #                 ^ is 5.2 for zoxide's <Space>+<Tab> Shortcut key
     #                 /bin/bash
 
-    # 履歴検索がまだ
+    # zshは履歴検索がまだ
     # /usr/bin/zsh
-}
-
-function docker_exec_dind(){
-    wd=$1
-    shift
-    _docker_exec docker /bin/bash "$wd"
 }
 
 function inShortTime(){
