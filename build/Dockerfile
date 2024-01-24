@@ -351,6 +351,7 @@ FROM base as dind
 # |> p7zip-full (7za)
 # |> pv : progress viewer
 # |> rsync
+# |> unzip : for bun installation
 # sort packages (ignore first line (apt-get) and last line (echo))
 # (sort-packages-in-dockerfile)
 RUN apt-get install -y \
@@ -362,6 +363,7 @@ RUN apt-get install -y \
     pv \
     rsync \
     sudo \
+    unzip \
     && echo installed
 
 # not installed packages
@@ -429,6 +431,10 @@ RUN dpkg -i /${A} \
 
 # chezmoi : dotfiles manager
 RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+
+# bun : JavaScript and TypeScript toolkit
+ENV V=1.0.25
+RUN curl -fsSL https://bun.sh/install | bash -s "bun-v${V}"
 
 # # this needs python3-pip package and maybe dont used in current situation
 # # install azure-cli percol, cfn-lint
