@@ -7,7 +7,7 @@ services:
     #   args:
     #     username: peccu
     #     homedir: /mnt/c/Users
-    image: peccu/tool-in-docker:ansible
+    image: peccu/tool-in-docker:latest
     environment:
       - TOOLTYPE=tool
       # X11
