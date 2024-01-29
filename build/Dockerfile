@@ -262,10 +262,20 @@ RUN cd /tmp/${A} \
 # terraform : IaC
 ENV V=1.7.0
 ENV A=terraform_${V}_linux_amd64.zip
-ADD https://releases.hashicorp.com/terraform/${V}/${A} /${A}
+ADD https://releases.hashicorp.com/terraform/${V}/${A} /tmp/${A}
 RUN cd ${OUT} \
-    && 7za x /${A} \
-    && rm /${A}
+    && 7za x /tmp/${A} \
+    && rm -rf /tmp/${A}
+
+# GitHub CLI
+ENV V=2.42.1
+ENV A=gh_${V}_linux_amd64
+ADD https://github.com/cli/cli/releases/download/v${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && 7za x ${A}.tar.gz \
+    && tar xf ${A}.tar \
+    && mv ${A}/bin/gh ${OUT} \
+    && rm -rf /tmp/${A}
 
 #---------------
 # Direct binary
@@ -357,16 +367,18 @@ RUN apt-get install -y \
 # zsh
 
 # docker
+# Add Docker's official GPG key:
 RUN apt-get install -y \
     ca-certificates \
     gnupg \
     && install -m 0755 -d /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && chmod a+r /etc/apt/keyrings/docker.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
     > /etc/apt/sources.list.d/docker.list \
     && apt-get update \
-    && apt-get install docker-ce docker-ce-cli  docker-buildx-plugin docker-compose-plugin -y
+    && apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 
 # setup locale en_US.UTF-8
 # https://stackoverflow.com/a/55077451
@@ -412,6 +424,7 @@ RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 # bun : JavaScript and TypeScript toolkit
 ENV V=1.0.25
 RUN curl -fsSL https://bun.sh/install | bash -s "bun-v${V}"
+ENV BUN_INSTALL_CACHE_DIR=/tmp/bun-cache
 
 # # this needs python3-pip package and maybe dont used in current situation
 # # install azure-cli percol, cfn-lint
@@ -437,6 +450,7 @@ COPY --from=bin ${OUT}/cfn-skeleton /usr/local/bin/
 COPY --from=bin ${OUT}/delta /usr/local/bin/
 COPY --from=bin ${OUT}/fd /usr/local/bin/
 COPY --from=bin ${OUT}/fzf /usr/local/bin/
+COPY --from=bin ${OUT}/gh /usr/local/bin/
 COPY --from=bin ${OUT}/jd /usr/local/bin/
 COPY --from=bin ${OUT}/jless /usr/local/bin/
 COPY --from=bin ${OUT}/jq /usr/local/bin/
