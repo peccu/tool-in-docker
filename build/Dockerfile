@@ -439,6 +439,7 @@ ENV BUN_INSTALL_CACHE_DIR=/tmp/bun-cache
 #     urllib3==1.26.6 \
 #     && echo installed
 
+# ansible : setup multiple environment
 # https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-ubuntu
 RUN apt install -y \
     software-properties-common \
