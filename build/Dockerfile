@@ -439,6 +439,13 @@ ENV BUN_INSTALL_CACHE_DIR=/tmp/bun-cache
 #     urllib3==1.26.6 \
 #     && echo installed
 
+# https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-ubuntu
+RUN apt install -y \
+    software-properties-common \
+    && add-apt-repository --yes --update ppa:ansible/ansible \
+    && apt install -y \
+    ansible
+
 # copy from build layer
 COPY --from=build ${OUT}/bash /usr/local/bin/
 COPY --from=build ${OUT}/datamash /usr/local/bin/
@@ -474,12 +481,6 @@ COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 COPY --from=rust /usr/local/cargo/bin/the-way /usr/local/bin/
 
 ## other branch's space
-# https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-ubuntu
-RUN apt install -y \
-    software-properties-common \
-    && add-apt-repository --yes --update ppa:ansible/ansible \
-    && apt install -y \
-    ansible
 ## other branch's space
 
 # setup user environment
