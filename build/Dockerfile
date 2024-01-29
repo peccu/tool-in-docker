@@ -149,7 +149,7 @@ ADD ${GH}/junegunn/fzf/raw/${V}/bin/fzf-tmux ${OUT}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}.tar.gz \
     && mv fzf ${OUT} \
-    && chmod +x ${OUT/fzf-tmux \
+    && chmod +x ${OUT}/fzf-tmux \
     && rm -rf /tmp/${A}
 
 # skim : fuzzy search ?
