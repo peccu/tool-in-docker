@@ -142,12 +142,14 @@ RUN cd /tmp/${A} \
     && rm -rf /tmp/${A}
 
 # fzf : fuzzy search. mainly used in history search (C-r)
-ENV V=0.38.0
+ENV V=0.46.0
 ENV A=fzf-${V}-linux_amd64
 ADD ${GH}/junegunn/fzf/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+ADD ${GH}/junegunn/fzf/raw/${V}/bin/fzf-tmux ${OUT}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}.tar.gz \
     && mv fzf ${OUT} \
+    && chmod +x ${OUT/fzf-tmux \
     && rm -rf /tmp/${A}
 
 # skim : fuzzy search ?
@@ -450,6 +452,7 @@ COPY --from=bin ${OUT}/cfn-skeleton /usr/local/bin/
 COPY --from=bin ${OUT}/delta /usr/local/bin/
 COPY --from=bin ${OUT}/fd /usr/local/bin/
 COPY --from=bin ${OUT}/fzf /usr/local/bin/
+COPY --from=bin ${OUT}/fzf-tmux /usr/local/bin/
 COPY --from=bin ${OUT}/gh /usr/local/bin/
 COPY --from=bin ${OUT}/jd /usr/local/bin/
 COPY --from=bin ${OUT}/jless /usr/local/bin/
