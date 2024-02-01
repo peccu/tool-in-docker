@@ -336,10 +336,13 @@ FROM base as dind
 # |> bash-completion : completions
 # |> dnsutils (dig, nslookup)
 # |> iputils-ping (ping)
+# |> libxcb-shape0 (for jless deps)
 # |> nkf
 # |> p7zip-full (7za)
+# |> psmisc (for pstree)
 # |> pv : progress viewer
 # |> rsync
+# |> sudo
 # |> unzip : for bun installation
 # sort packages (ignore first line (apt-get) and last line (echo))
 # (sort-packages-in-dockerfile)
@@ -347,8 +350,10 @@ RUN apt-get install -y \
     bash-completion \
     dnsutils \
     iputils-ping \
+    libxcb-shape0 \
     nkf \
     p7zip-full \
+    psmisc \
     pv \
     rsync \
     sudo \
@@ -363,7 +368,6 @@ RUN apt-get install -y \
 # emacs-nox
 # libevent
 # nmap
-# psmisc
 # python3-pip
 # whois
 # zsh
@@ -425,7 +429,10 @@ RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 
 # bun : JavaScript and TypeScript toolkit
 ENV V=1.0.25
-RUN curl -fsSL https://bun.sh/install | bash -s "bun-v${V}"
+RUN curl -fsSL https://bun.sh/install | bash -s "bun-v${V}" \
+    && cd /usr/local/bin/ \
+    && mv ~/.bun/bin/bun ./ \
+    && ln -s bun bunx
 ENV BUN_INSTALL_CACHE_DIR=/tmp/bun-cache
 
 # # this needs python3-pip package and maybe dont used in current situation
