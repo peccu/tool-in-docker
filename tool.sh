@@ -15,6 +15,6 @@ docker_exec "$wd" "$@" \
     && : \
     || (\
         inShortTime $launch $restarttime \
-            && docker_compose_up-d \
+            && docker_compose_up-d app \
             && docker_exec "$wd" "$@"\
        )
