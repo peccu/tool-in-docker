@@ -358,6 +358,7 @@ FROM base as dind
 # install tools from apt
 # |> bash-completion : completions
 # |> dnsutils (dig, nslookup)
+# |> groff (for aws help)
 # |> iputils-ping (ping)
 # |> libxcb-shape0 (for jless deps)
 # |> nkf
@@ -372,6 +373,7 @@ FROM base as dind
 RUN apt-get install -y \
     bash-completion \
     dnsutils \
+    groff \
     iputils-ping \
     libxcb-shape0 \
     nkf \
