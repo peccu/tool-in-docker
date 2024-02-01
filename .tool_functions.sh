@@ -18,7 +18,7 @@ function docker_compose(){
 }
 
 function docker_compose_up-d(){
-    docker_compose up -d
+    docker_compose up -d "$@"
 }
 
 function _docker_exec(){
