@@ -279,6 +279,18 @@ RUN cd /tmp/${A} \
     && mv ${A}/bin/gh ${OUT} \
     && rm -rf /tmp/${A}
 
+# csvlens : csv less tool
+# https://github.com/YS-L/csvlens
+ENV V=0.6.0
+ENV A=csvlens-x86_64-unknown-linux-gnu
+ADD ${GH}/YS-L/csvlens/${RD}/v${V}/${A}.tar.xz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && 7za x ${A}.tar.xz \
+    && tar xf ${A}.tar \
+    && cd ${A} \
+    && mv csvlens ${OUT} \
+    && rm -rf /tmp/${A}
+
 #---------------
 # Direct binary
 #---------------
