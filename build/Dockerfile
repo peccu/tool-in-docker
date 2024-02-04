@@ -346,9 +346,6 @@ FROM rust:slim as rust
 RUN cargo install the-way
 
 ## other branch's space
-##################################################
-FROM peccu/emacs-wslg:buildenv as emacs-wslg
-##################################################
 ## other branch's space
 
 ##################################################
@@ -528,7 +525,7 @@ RUN apt-get install -y \
 # Emacs for WSLg related
 ENV V=29-1
 ENV A=emacs-wslg_${V}_amd64
-COPY --from=emacs-wslg /tmp/emacs/${A}.deb /tmp/${A}/
+COPY --from=peccu/emacs-wslg:buildenv /tmp/emacs/${A}.deb /tmp/${A}/
 RUN apt-get install -y \
     /tmp/${A}/${A}.deb \
     && rm -rf /tmp/${A}
