@@ -498,6 +498,7 @@ COPY --from=bin ${OUT}/atuin /usr/local/bin/
 COPY --from=bin ${OUT}/bat /usr/local/bin/
 COPY --from=bin ${OUT}/cfn-format /usr/local/bin/
 COPY --from=bin ${OUT}/cfn-skeleton /usr/local/bin/
+COPY --from=bin ${OUT}/csvlens /usr/local/bin/
 COPY --from=bin ${OUT}/delta /usr/local/bin/
 COPY --from=bin ${OUT}/fd /usr/local/bin/
 COPY --from=bin ${OUT}/fzf /usr/local/bin/
