@@ -10,7 +10,11 @@ RUN apt-get install -y \
 
 # support variables
 ENV GH=https://github.com
+ENV GHAPI=https://api.github.com
+ENV GHREPO=${GHAPI}/repos
 ENV RD=releases/download
+ENV RLD=releases/latest/download
+ENV RL=releases/latest
 
 # binary output directory
 ENV OUT=/a
@@ -272,7 +276,7 @@ RUN cd ${OUT} \
 # GitHub CLI
 ENV V=2.42.1
 ENV A=gh_${V}_linux_amd64
-ADD https://github.com/cli/cli/releases/download/v${V}/${A}.tar.gz /tmp/${A}/
+ADD ${GH}/cli/cli/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && 7za x ${A}.tar.gz \
     && tar xf ${A}.tar \
@@ -305,7 +309,7 @@ RUN chmod +x ${OUT}/${B}
 # tailwindcss : Tailwind CSS Standalone CLI
 ENV A=tailwindcss-linux-x64
 ENV B=tailwindcss
-ADD ${GH}/tailwindlabs/tailwindcss/releases/latest/download/${A} ${OUT}/${B}
+ADD ${GH}/tailwindlabs/tailwindcss/${RLD}/${A} ${OUT}/${B}
 RUN chmod +x ${OUT}/${B}
 
 # jq : json query
@@ -398,7 +402,12 @@ RUN apt-get install -y \
     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
     > /etc/apt/sources.list.d/docker.list \
     && apt-get update \
-    && apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+    && apt-get install -y \
+    containerd.io \
+    docker-buildx-plugin \
+    docker-ce \
+    docker-ce-cli \
+    docker-compose-plugin
 
 # setup locale en_US.UTF-8
 # https://stackoverflow.com/a/55077451
@@ -410,31 +419,34 @@ RUN apt-get install -y \
 
 # aws cli
 # https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-ADD https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip /awscliv2.zip
-RUN 7za x /awscliv2.zip \
+ENV A=awscli-exe-linux-x86_64.zip
+ADD https://awscli.amazonaws.com/${A} /${A}
+RUN 7za x /${A} \
     && ./aws/install \
-    && rm -rf /awscliv2.zip ./aws
+    && rm -rf /${A} ./aws
 
 # aws cli session manager plugin
 # uninstall via dpkg -r session-manager-plugin
 # session-manager-plugin command is for verify installation
-ADD https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb /session-manager-plugin.deb
-RUN dpkg -i /session-manager-plugin.deb \
-    && rm /session-manager-plugin.deb \
+ENV A=session-manager-plugin.deb
+ADD https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/${A} /${A}
+RUN dpkg -i /${A} \
+    && rm /${A} \
     && session-manager-plugin
 
 # aws sam cli
 # sam --version command is for verify installation
-ADD ${GH}/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip /aws-sam-cli-linux-x86_64.zip
-RUN 7za x -osam-installer aws-sam-cli-linux-x86_64.zip \
+ENV A=aws-sam-cli-linux-x86_64.zip
+ADD ${GH}/aws/aws-sam-cli/${RLD}/${A} /${A}
+RUN 7za x -osam-installer ${A} \
     && ./sam-installer/install \
-    && rm -rf sam-installer aws-sam-cli-linux-x86_64.zip \
+    && rm -rf sam-installer ${A} \
     && sam --version
 
 # q : csv (text) query
 ENV V=3.1.6
 ENV A=q-text-as-data-${V}-1.x86_64.deb
-ADD ${GH}/harelba/q/releases/download/v${V}/${A} /${A}
+ADD ${GH}/harelba/q/${RD}/v${V}/${A} /${A}
 RUN dpkg -i /${A} \
     && rm /${A}
 
