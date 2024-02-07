@@ -480,6 +480,14 @@ RUN apt install -y \
     && apt install -y \
     ansible
 
+# bruno : API testing (Re-Inventing the API Client)
+ENV V=1.8.0
+ENV A=bruno_${V}_amd64_linux
+ADD ${GH}/usebruno/bruno/${RD}/v${V}/bruno_${V}_amd64_linux.deb /tmp/${A}/
+RUN apt-get install -y \
+    /tmp/${A}/${A}.deb \
+    && rm -rf /tmp/${A}
+
 ## other branch's space
 ## other branch's space
 
