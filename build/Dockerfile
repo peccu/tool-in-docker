@@ -488,6 +488,33 @@ RUN apt install -y \
     && apt install -y \
     ansible
 
+## other branch's space
+# add fonts
+COPY --from=bin ${OUT}/SourceHanSans-VF.otf /usr/share/fonts/SourceHanSans-VF/
+COPY --from=bin ${OUT}/FiraCode /usr/share/fonts/
+COPY --from=bin ${OUT}/FiraCode-VF.ttf /usr/share/fonts/FiraCode/
+# fonts-takao : Japanese Font
+RUN apt-get install -y \
+    fontconfig \
+    fonts-takao \
+    && fc-cache -fv \
+    && fc-list
+
+# Emacs for WSLg related
+ENV V=29-1
+ENV A=emacs-wslg_${V}_amd64
+COPY --from=peccu/emacs-wslg:buildenv /tmp/emacs/${A}.deb /tmp/${A}/
+RUN apt-get install -y \
+    /tmp/${A}/${A}.deb \
+    && rm -rf /tmp/${A}
+
+# for vGPU container
+ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
+RUN apt-get install -y mesa-utils
+# test command
+# /usr/bin/glxinfo -B
+## other branch's space
+
 # copy from build layer
 COPY --from=build ${OUT}/bash /usr/local/bin/
 COPY --from=build ${OUT}/datamash /usr/local/bin/
@@ -522,33 +549,6 @@ COPY --from=bin /usr/share/bash-completion/completions/rain /usr/share/bash-comp
 COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 # copy from rust layer
 COPY --from=rust /usr/local/cargo/bin/the-way /usr/local/bin/
-
-## other branch's space
-# add fonts
-COPY --from=bin ${OUT}/SourceHanSans-VF.otf /usr/share/fonts/SourceHanSans-VF/
-COPY --from=bin ${OUT}/FiraCode /usr/share/fonts/
-COPY --from=bin ${OUT}/FiraCode-VF.ttf /usr/share/fonts/FiraCode/
-# fonts-takao : Japanese Font
-RUN apt-get install -y \
-    fontconfig \
-    fonts-takao \
-    && fc-cache -fv \
-    && fc-list
-
-# Emacs for WSLg related
-ENV V=29-1
-ENV A=emacs-wslg_${V}_amd64
-COPY --from=peccu/emacs-wslg:buildenv /tmp/emacs/${A}.deb /tmp/${A}/
-RUN apt-get install -y \
-    /tmp/${A}/${A}.deb \
-    && rm -rf /tmp/${A}
-
-# for vGPU container
-ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
-RUN apt-get install -y mesa-utils
-# test command
-# /usr/bin/glxinfo -B
-## other branch's space
 
 # setup user environment
 ARG username=user
