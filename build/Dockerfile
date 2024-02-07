@@ -324,16 +324,21 @@ RUN chmod +x ${OUT}/${B}
 ADD ${GH}/adobe-fonts/source-han-sans/raw/release/Variable/OTF/SourceHanSans-VF.otf ${OUT}/
 
 # https://github.com/tonsky/FiraCode
-RUN mkdir -p /tmp/fonts \
-    && curl -LO $(curl -s https://api.github.com/repos/tonsky/FiraCode/releases/latest | grep browser_download_url | awk '{print $2}' | tr -d '"' ) \
+ENV A=Fira_Code
+RUN mkdir -p /tmp/${A} \
+    && cd /tmp/${A} \
+    && curl -LO $(curl -s ${GHREPO}/tonsky/FiraCode/${RL} \
+    | grep browser_download_url \
+    | tr -d ' "' \
+    | cut -d: -f2- ) \
     && 7za x Fira_Code_*.zip \
     && mv variable_ttf/FiraCode-VF.ttf ${OUT} \
-    && rm Fira_Code_*.zip
+    && rm /tmp/Fira_Code
 
 # FiraCode font (Nerd Font Ver.)
 ENV V=v3.1.1
 ENV A=FiraCode
-ADD ${GH}/ryanoasis/nerd-fonts/releases/download/${V}/${A}.tar.xz /tmp/${A}/
+ADD ${GH}/ryanoasis/nerd-fonts/${RD}/${V}/${A}.tar.xz /tmp/${A}/
 RUN cd /tmp/${A} \
     && 7za x ${A}.tar.xz \
     && tar xf ${A}.tar \
