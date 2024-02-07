@@ -468,6 +468,9 @@ RUN apt install -y \
     && apt install -y \
     ansible
 
+## other branch's space
+## other branch's space
+
 # copy from build layer
 COPY --from=build ${OUT}/bash /usr/local/bin/
 COPY --from=build ${OUT}/datamash /usr/local/bin/
@@ -502,9 +505,6 @@ COPY --from=bin /usr/share/bash-completion/completions/rain /usr/share/bash-comp
 COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 # copy from rust layer
 COPY --from=rust /usr/local/cargo/bin/the-way /usr/local/bin/
-
-## other branch's space
-## other branch's space
 
 # setup user environment
 ARG username=user
