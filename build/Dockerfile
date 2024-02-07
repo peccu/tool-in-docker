@@ -331,9 +331,9 @@ RUN mkdir -p /tmp/${A} \
     | grep browser_download_url \
     | tr -d ' "' \
     | cut -d: -f2- ) \
-    && 7za x Fira_Code_*.zip \
+    && 7za x ${A}_*.zip \
     && mv variable_ttf/FiraCode-VF.ttf ${OUT} \
-    && rm /tmp/Fira_Code
+    && rm -rf /tmp/${A}
 
 # FiraCode font (Nerd Font Ver.)
 ENV V=v3.1.1
