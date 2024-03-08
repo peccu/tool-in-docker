@@ -295,6 +295,19 @@ RUN cd /tmp/${A} \
     && mv csvlens ${OUT} \
     && rm -rf /tmp/${A}
 
+# glow : Render markdown and stash them
+# https://github.com/charmbracelet/glow
+ENV V=1.5.1
+ENV A=glow_Linux_x86_64
+ENV GU=charmbracelet/glow
+ADD ${GH}/${GU}/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && 7za x ${A}.tar.xz \
+    && tar xf ${A}.tar \
+    && mv glow ${OUT} \
+    && mv completions/glow.bash /usr/share/bash-completion/completions/ \
+    && rm -rf /tmp/${A}
+
 #---------------
 # Direct binary
 #---------------
@@ -502,6 +515,7 @@ COPY --from=bin ${OUT}/fd /usr/local/bin/
 COPY --from=bin ${OUT}/fzf /usr/local/bin/
 COPY --from=bin ${OUT}/fzf-tmux /usr/local/bin/
 COPY --from=bin ${OUT}/gh /usr/local/bin/
+COPY --from=bin ${OUT}/glow /usr/local/bin/
 COPY --from=bin ${OUT}/jd /usr/local/bin/
 COPY --from=bin ${OUT}/jless /usr/local/bin/
 COPY --from=bin ${OUT}/jq /usr/local/bin/
@@ -516,6 +530,7 @@ COPY --from=bin ${OUT}/watchexec /usr/local/bin/
 COPY --from=bin ${OUT}/xsv /usr/local/bin/
 COPY --from=bin ${OUT}/zoxide /usr/local/bin/
 COPY --from=bin /usr/share/bash-completion/completions/rain /usr/share/bash-completion/completions/
+COPY --from=bin /usr/share/bash-completion/completions/glow.bash /usr/share/bash-completion/completions/
 # copy from golang layer
 COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 # copy from rust layer
@@ -523,7 +538,6 @@ COPY --from=rust /usr/local/cargo/bin/the-way /usr/local/bin/
 
 # setup user environment
 ARG username=user
-# /usr/local/bin/bash has built in build layer
 ARG homedir=/mnt/c/Users
 RUN mkdir -p ${homedir}
 RUN groupadd -g 1000 ${username} \
@@ -545,3 +559,4 @@ STOPSIGNAL SIGKILL
 VOLUME ["${homedir}/${username}"]
 WORKDIR ${homedir}/${username}
 ENTRYPOINT ["/usr/bin/sleep", "infinity"]
+# ENTRYPOINT ["/usr/local/bin/bash"]
