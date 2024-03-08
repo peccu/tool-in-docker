@@ -340,7 +340,7 @@ ENV GU=charmbracelet/glow
 ENV B=glow
 ADD ${GH}/${GU}/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
-    && 7za x ${A}.tar.xz \
+    && 7za x ${A}.tar.gz \
     && tar xf ${A}.tar \
     && mv ${B} ${OUT} \
     && mv completions/glow.bash /usr/share/bash-completion/completions/ \
