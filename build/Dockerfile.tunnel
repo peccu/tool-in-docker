@@ -1,0 +1,68 @@
+##################################################
+FROM ubuntu:22.04
+##################################################
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update
+
+# install tools from apt
+# |> p7zip-full (7za)
+# |> openssh-client
+# |> sudo
+# sort packages (ignore first line (apt-get) and last line (echo))
+# (sort-packages-in-dockerfile)
+RUN apt-get install -y \
+    openssh-client \
+    p7zip-full \
+    sudo \
+    && echo installed
+
+# setup locale en_US.UTF-8
+# https://stackoverflow.com/a/55077451
+RUN apt-get install -y \
+    locales \
+    && locale-gen en_US.UTF-8 \
+    && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
+    && echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
+# aws cli
+# https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+ADD https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip /awscliv2.zip
+RUN 7za x /awscliv2.zip \
+    && ./aws/install \
+    && rm -rf /awscliv2.zip ./aws
+
+# aws cli session manager plugin
+# uninstall via dpkg -r session-manager-plugin
+# session-manager-plugin command is for verify installation
+ADD https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb /session-manager-plugin.deb
+RUN dpkg -i /session-manager-plugin.deb \
+    && rm /session-manager-plugin.deb \
+    && session-manager-plugin
+
+# setup user environment
+ARG username=user
+# ARG homedir=/mnt/c/Users
+ARG homedir=/home
+RUN mkdir -p ${homedir}
+RUN groupadd -g 1000 ${username} \
+    && useradd \
+    -d ${homedir}/${username} \
+    -g 1000 \
+    -lMN \
+    -s /bin/bash \
+    -u 1000 \
+    ${username} \
+    && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g') \
+    && chmod 0440 /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g')
+
+USER ${username}
+STOPSIGNAL SIGKILL
+VOLUME ["${homedir}/${username}"]
+WORKDIR ${homedir}/${username}
+
+COPY ./tunnel.sh /
+
+ENTRYPOINT ["/bin/bash"]
+CMD ["/tunnel.sh"]

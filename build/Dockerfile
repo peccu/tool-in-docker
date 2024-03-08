@@ -33,6 +33,7 @@ FROM base as build
 ENV TZ=Asia/Tokyo
 ENV V=3.3a
 ENV A=tmux-${V}
+ENV GU=tmux/tmux
 # (sort-packages-in-dockerfile)
 RUN apt-get install -y \
     bison \
@@ -42,7 +43,7 @@ RUN apt-get install -y \
     pkg-config \
     && echo installed
 
-ADD ${GH}/tmux/tmux/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+ADD ${GH}/${GU}/${RD}/${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xf ${A}.tar.gz \
     && cd ${A} \
@@ -56,7 +57,8 @@ RUN cd /tmp/${A} \
 # USAGE: reptyr PID
 ENV V=0.9.0
 ENV A=reptyr-${V}
-ADD ${GH}/nelhage/reptyr/archive/refs/tags/${A}.tar.gz /tmp/${A}/
+ENV GU=nelhage/reptyr
+ADD ${GH}/${GU}/archive/refs/tags/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xf ${A}.tar.gz \
     && cd reptyr-${A} \
@@ -109,7 +111,8 @@ RUN apt-get install -y p7zip-full
 # https://github.com/BurntSushi/ripgrep/releases
 ENV V=14.1.0
 ENV A=ripgrep-${V}-x86_64-unknown-linux-musl
-ADD ${GH}/BurntSushi/ripgrep/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+ENV GU=BurntSushi/ripgrep
+ADD ${GH}/${GU}/${RD}/${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}* \
     && mv ${A}/rg ${OUT} \
@@ -117,10 +120,11 @@ RUN cd /tmp/${A} \
 
 # delta : for git diff
 ENV V=0.16.5
+ENV GU=dandavison/delta
 ENV A=delta-${V}-x86_64-unknown-linux-gnu
 # muls version for amazon linux?
 # ENV A=delta-${V}-x86_64-unknown-linux-musl
-ADD ${GH}/dandavison/delta/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+ADD ${GH}/${GU}/${RD}/${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}* \
     && mv ${A}/delta ${OUT} \
@@ -130,7 +134,8 @@ RUN cd /tmp/${A} \
 # https://github.com/bcpierce00/unison/releases
 ENV V=2.53.3
 ENV A=unison-${V}-ubuntu-x86_64
-ADD ${GH}/bcpierce00/unison/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
+ENV GU=bcpierce00/unison
+ADD ${GH}/${GU}/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}* \
     && mv bin/unison ${OUT} \
@@ -139,7 +144,8 @@ RUN cd /tmp/${A} \
 # atuin : ?
 ENV V=v12.0.0
 ENV A=atuin-${V}-x86_64-unknown-linux-gnu
-ADD ${GH}/ellie/atuin/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+ENV GU=ellie/atuin
+ADD ${GH}/${GU}/${RD}/${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}.tar.gz \
     && mv ${A}/atuin ${OUT} \
@@ -148,8 +154,9 @@ RUN cd /tmp/${A} \
 # fzf : fuzzy search. mainly used in history search (C-r)
 ENV V=0.46.0
 ENV A=fzf-${V}-linux_amd64
-ADD ${GH}/junegunn/fzf/${RD}/${V}/${A}.tar.gz /tmp/${A}/
-ADD ${GH}/junegunn/fzf/raw/${V}/bin/fzf-tmux ${OUT}/
+ENV GU=junegunn/fzf
+ADD ${GH}/${GU}/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+ADD ${GH}/${GU}/raw/${V}/bin/fzf-tmux ${OUT}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}.tar.gz \
     && mv fzf ${OUT} \
@@ -159,7 +166,8 @@ RUN cd /tmp/${A} \
 # skim : fuzzy search ?
 ENV V=v0.9.4
 ENV A=skim-${V}-x86_64-unknown-linux-musl
-ADD ${GH}/lotabout/skim/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+ENV GU=lotabout/skim
+ADD ${GH}/${GU}/${RD}/${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}.tar.gz \
     && mv sk ${OUT} \
@@ -168,7 +176,8 @@ RUN cd /tmp/${A} \
 # xsv : csv tool
 ENV V=0.13.0
 ENV A=xsv-${V}-x86_64-unknown-linux-musl
-ADD ${GH}/BurntSushi/xsv/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+ENV GU=BurntSushi/xsv
+ADD ${GH}/${GU}/${RD}/${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}.tar.gz \
     && mv xsv ${OUT} \
@@ -177,7 +186,8 @@ RUN cd /tmp/${A} \
 # bat : cat alternative
 ENV V=v0.22.1
 ENV A=bat-${V}-x86_64-unknown-linux-musl
-ADD ${GH}/sharkdp/bat/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+ENV GU=sharkdp/bat
+ADD ${GH}/${GU}/${RD}/${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}.tar.gz \
     && mv ${A}/bat ${OUT} \
@@ -186,7 +196,8 @@ RUN cd /tmp/${A} \
 # fd : find alternative
 ENV V=v8.6.0
 ENV A=fd-${V}-x86_64-unknown-linux-musl
-ADD ${GH}/sharkdp/fd/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+ENV GU=sharkdp/fd
+ADD ${GH}/${GU}/${RD}/${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}.tar.gz \
     && mv ${A}/fd ${OUT} \
@@ -195,7 +206,8 @@ RUN cd /tmp/${A} \
 # jless : less command for JSON
 ENV V=v0.8.0
 ENV A=jless-${V}-x86_64-unknown-linux-gnu
-ADD ${GH}/PaulJuliusMartinez/jless/${RD}/${V}/${A}.zip /tmp/${A}/
+ENV GU=PaulJuliusMartinez/jless
+ADD ${GH}/${GU}/${RD}/${V}/${A}.zip /tmp/${A}/
 RUN cd /tmp/${A} \
     && 7za x ${A}.zip \
     && chmod +x jless \
@@ -207,7 +219,8 @@ RUN cd /tmp/${A} \
 # https://github.com/aws-cloudformation/rain
 ENV V=v1.7.5
 ENV A=rain-${V}_linux-amd64
-ADD ${GH}/aws-cloudformation/rain/${RD}/${V}/${A}.zip /tmp/${A}/
+ENV GU=aws-cloudformation/rain
+ADD ${GH}/${GU}/${RD}/${V}/${A}.zip /tmp/${A}/
 RUN cd /tmp/${A} \
     && 7za x ${A}.zip \
     && mv ${A}/rain ${OUT} \
@@ -220,7 +233,8 @@ ADD ${GH}/aws-cloudformation/rain/raw/${V}/docs/bash_completion.sh /usr/share/ba
 # https://github.com/awslabs/aws-cloudformation-template-builder
 ENV V=v0.2.0
 ENV A=cfn-skeleton-${V}_linux-amd64
-ADD ${GH}/awslabs/aws-cloudformation-template-builder/${RD}/${V}/${A}.zip /tmp/${A}/
+ENV GU=awslabs/aws-cloudformation-template-builder
+ADD ${GH}/${GU}/${RD}/${V}/${A}.zip /tmp/${A}/
 RUN cd /tmp/${A} \
     && 7za x ${A}.zip \
     && mv ${A}/cfn-skeleton ${OUT} \
@@ -230,7 +244,8 @@ RUN cd /tmp/${A} \
 # https://github.com/awslabs/aws-cloudformation-template-formatter
 ENV V=v1.1.2-1
 ENV A=cfn-format-${V}_linux-amd64
-ADD ${GH}/awslabs/aws-cloudformation-template-formatter/${RD}/${V}/${A}.zip /tmp/${A}/
+ENV GU=awslabs/aws-cloudformation-template-formatter
+ADD ${GH}/${GU}/${RD}/${V}/${A}.zip /tmp/${A}/
 RUN cd /tmp/${A} \
     && 7za x ${A}.zip \
     && mv ${A}/cfn-format ${OUT} \
@@ -239,7 +254,8 @@ RUN cd /tmp/${A} \
 # zoxide : auto jump history
 ENV V=0.9.0
 ENV A=zoxide-${V}-x86_64-unknown-linux-musl
-ADD ${GH}/ajeetdsouza/zoxide/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
+ENV GU=ajeetdsouza/zoxide
+ADD ${GH}/${GU}/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && tar xzf ${A}.tar.gz \
     && mv zoxide ${OUT} \
@@ -248,7 +264,8 @@ RUN cd /tmp/${A} \
 # watchexec : watch file event and exec command
 ENV V=1.21.0
 ENV A=watchexec-${V}-x86_64-unknown-linux-musl
-ADD ${GH}/watchexec/watchexec/${RD}/v${V}/${A}.tar.xz /tmp/${A}/
+ENV GU=watchexec/watchexec
+ADD ${GH}/${GU}/${RD}/v${V}/${A}.tar.xz /tmp/${A}/
 RUN cd /tmp/${A} \
     && 7za x ${A}.tar.xz \
     && tar xf ${A}.tar \
@@ -276,7 +293,8 @@ RUN cd ${OUT} \
 # GitHub CLI
 ENV V=2.42.1
 ENV A=gh_${V}_linux_amd64
-ADD ${GH}/cli/cli/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
+ENV GU=cli/cli
+ADD ${GH}/${GU}/${RD}/v${V}/${A}.tar.gz /tmp/${A}/
 RUN cd /tmp/${A} \
     && 7za x ${A}.tar.gz \
     && tar xf ${A}.tar \
@@ -287,7 +305,8 @@ RUN cd /tmp/${A} \
 # https://github.com/YS-L/csvlens
 ENV V=0.6.0
 ENV A=csvlens-x86_64-unknown-linux-gnu
-ADD ${GH}/YS-L/csvlens/${RD}/v${V}/${A}.tar.xz /tmp/${A}/
+ENV GU=YS-L/csvlens
+ADD ${GH}/${GU}/${RD}/v${V}/${A}.tar.xz /tmp/${A}/
 RUN cd /tmp/${A} \
     && 7za x ${A}.tar.xz \
     && tar xf ${A}.tar \
@@ -316,20 +335,23 @@ RUN cd /tmp/${A} \
 ENV V=v1.6.1
 ENV A=jd-amd64-linux
 ENV B=jd
-ADD ${GH}/josephburnett/jd/${RD}/${V}/${A} ${OUT}/${B}
+ENV GU=josephburnett/jd
+ADD ${GH}/${GU}/${RD}/${V}/${A} ${OUT}/${B}
 RUN chmod +x ${OUT}/${B}
 
 # tailwindcss : Tailwind CSS Standalone CLI
 ENV A=tailwindcss-linux-x64
 ENV B=tailwindcss
-ADD ${GH}/tailwindlabs/tailwindcss/${RLD}/${A} ${OUT}/${B}
+ENV GU=tailwindlabs/tailwindcss
+ADD ${GH}/${GU}/${RLD}/${A} ${OUT}/${B}
 RUN chmod +x ${OUT}/${B}
 
 # jq : json query
 ENV V=1.6
 ENV A=jq-linux64
 ENV B=jq
-ADD ${GH}/jqlang/jq/${RD}/jq-${V}/${A} ${OUT}/${B}
+ENV GU=jqlang/jq
+ADD ${GH}/${GU}/${RD}/jq-${V}/${A} ${OUT}/${B}
 RUN chmod +x ${OUT}/${B}
 
 ## other branch's space
@@ -450,7 +472,8 @@ RUN dpkg -i /${A} \
 # aws sam cli
 # sam --version command is for verify installation
 ENV A=aws-sam-cli-linux-x86_64.zip
-ADD ${GH}/aws/aws-sam-cli/${RLD}/${A} /${A}
+ENV GU=aws/aws-sam-cli
+ADD ${GH}/${GU}/${RLD}/${A} /${A}
 RUN 7za x -osam-installer ${A} \
     && ./sam-installer/install \
     && rm -rf sam-installer ${A} \
@@ -459,7 +482,8 @@ RUN 7za x -osam-installer ${A} \
 # q : csv (text) query
 ENV V=3.1.6
 ENV A=q-text-as-data-${V}-1.x86_64.deb
-ADD ${GH}/harelba/q/${RD}/v${V}/${A} /${A}
+ENV GU=harelba/q
+ADD ${GH}/${GU}/${RD}/v${V}/${A} /${A}
 RUN dpkg -i /${A} \
     && rm /${A}
 
