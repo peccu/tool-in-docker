@@ -346,6 +346,22 @@ RUN cd /tmp/${A} \
     && mv completions/glow.bash /usr/share/bash-completion/completions/ \
     && rm -rf /tmp/${A}
 
+# binserve : static web server with TLS (HTTPS), etc
+# you can create certs by
+# # generate pkcs#10 key+cert (PEM):
+# $ openssl req -x509 -newkey rsa:4096 -keyout key_pkcs10.pem -out cert.pem -sha256 -days 36
+# # convert the private key to PKCS#8 (PEM):
+# $ openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in key_pkcs10.pem -out key.pem
+ENV V=v0.2.0
+ENV A=binserve-${V}-x86_64-unknown-linux-gnu
+ENV GU=mufeedvh/binserve
+ENV B=${A}/binserve
+ADD ${GH}/${GU}/${RD}/${V}/${A}.tar.gz /tmp/${A}/
+RUN cd /tmp/${A} \
+    && tar xzf ${A}.tar.gz \
+    && mv ${B} ${OUT} \
+    && rm -rf /tmp/${A}
+
 #---------------
 # Direct binary
 #---------------
