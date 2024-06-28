@@ -446,6 +446,7 @@ FROM base AS dind
 # install tools from apt
 # |> bash-completion : completions
 # |> dnsutils (dig, nslookup)
+# |> global : GNU global for tag jump
 # |> groff (for aws help)
 # |> iputils-ping (ping)
 # |> libxcb-shape0 (for jless deps)
@@ -455,12 +456,14 @@ FROM base AS dind
 # |> pv : progress viewer
 # |> rsync
 # |> sudo
+# |> tree : list files in tree
 # |> unzip : for bun installation
 # sort packages (ignore first line (apt-get) and last line (echo))
 # (sort-packages-in-dockerfile)
 RUN apt-get install -y \
     bash-completion \
     dnsutils \
+    global \
     groff \
     iputils-ping \
     libxcb-shape0 \
@@ -470,6 +473,7 @@ RUN apt-get install -y \
     pv \
     rsync \
     sudo \
+    tree \
     unzip \
     && echo installed
 
