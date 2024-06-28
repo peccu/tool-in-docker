@@ -1,5 +1,5 @@
 ##################################################
-FROM ubuntu:22.04 as base
+FROM ubuntu:22.04 AS base
 ##################################################
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -24,7 +24,7 @@ RUN mkdir -p $OUT
 ## other branch's space
 
 ##################################################
-FROM base as build
+FROM base AS build
 ##################################################
 
 # tmux : terminal multiplexer
@@ -99,7 +99,7 @@ RUN cd /tmp/${A} \
 ## other branch's space
 
 ##################################################
-FROM base as bin
+FROM base AS bin
 ##################################################
 
 #------------------
@@ -418,7 +418,7 @@ RUN cd /tmp/${A} \
 ## other branch's space
 
 ##################################################
-FROM golang:latest as go
+FROM golang:latest AS go
 ##################################################
 
 # git-xlsx-textconv : git diff xlsx file
@@ -430,7 +430,7 @@ RUN go install -v github.com/tokuhirom/git-xlsx-textconv@latest
 ## other branch's space
 
 ##################################################
-FROM rust:slim as rust
+FROM rust:slim AS rust
 ##################################################
 
 # the-way : snippet manager
@@ -440,7 +440,7 @@ RUN cargo install the-way
 ## other branch's space
 
 ##################################################
-FROM base as dind
+FROM base AS dind
 ##################################################
 
 # install tools from apt
