@@ -389,6 +389,42 @@ ENV GU=jqlang/jq
 ADD ${GH}/${GU}/${RD}/jq-${V}/${A} ${OUT}/${B}
 RUN chmod +x ${OUT}/${B}
 
+# lazygit : Git TUI
+# https://github.com/jesseduffield/lazygit
+# LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | \grep -Po '"tag_name": *"v\K[^"]*')
+# curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+# tar xf lazygit.tar.gz lazygit
+# sudo install lazygit -D -t /usr/local/bin/
+ENV A=lazygit
+ENV GU=jesseduffield/lazygit
+ENV BINKEY=Linux_x86_64
+RUN mkdir -p /tmp/${A} \
+    && cd /tmp/${A} \
+    && curl -LO $(curl -s ${GHREPO}/${GU}/${RL} \
+    | grep browser_download_url \
+    | grep $BINKEY \
+    | tr -d ' "' \
+    | cut -d: -f2- ) \
+    && tar xzf ${A}_*.tar.gz \
+    && mv ${A} ${OUT} \
+    && chmod +x ${OUT}/${A} \
+    && rm -rf /tmp/${A}
+
+# yazi : Blazing fast terminal file manager written in Rust, based on async I/O.
+ENV A=yazi
+ENV GU=sxyazi/yazi
+ENV BINKEY=x86_64-unknown-linux-musl
+RUN mkdir -p /tmp/${A} \
+    && cd /tmp/${A} \
+    && curl -LO $(curl -s ${GHREPO}/${GU}/${RL} \
+    | grep browser_download_url \
+    | grep $BINKEY \
+    | tr -d ' "' \
+    | cut -d: -f2- ) \
+    && 7za x ${A}-*.zip \
+    && mv ${A}-${BINKEY} ${OUT}/yazi \
+    && rm -rf /tmp/${A}
+
 ## other branch's space
 # https://github.com/adobe-fonts/source-han-sans/tree/release#otf
 ADD ${GH}/adobe-fonts/source-han-sans/raw/release/Variable/OTF/SourceHanSans-VF.otf ${OUT}/
@@ -631,6 +667,7 @@ COPY --from=bin ${OUT}/glow /usr/local/bin/
 COPY --from=bin ${OUT}/jd /usr/local/bin/
 COPY --from=bin ${OUT}/jless /usr/local/bin/
 COPY --from=bin ${OUT}/jq /usr/local/bin/
+COPY --from=bin ${OUT}/lazygit /usr/local/bin/
 COPY --from=bin ${OUT}/ncdu /usr/local/bin/
 COPY --from=bin ${OUT}/rain /usr/local/bin/
 COPY --from=bin ${OUT}/rg /usr/local/bin/
@@ -640,9 +677,12 @@ COPY --from=bin ${OUT}/terraform /usr/local/bin/
 COPY --from=bin ${OUT}/unison /usr/local/bin/
 COPY --from=bin ${OUT}/watchexec /usr/local/bin/
 COPY --from=bin ${OUT}/xsv /usr/local/bin/
+COPY --from=bin ${OUT}/yazi/ya /usr/local/bin/
+COPY --from=bin ${OUT}/yazi/yazi /usr/local/bin/
 COPY --from=bin ${OUT}/zoxide /usr/local/bin/
 COPY --from=bin /usr/share/bash-completion/completions/rain /usr/share/bash-completion/completions/
 COPY --from=bin /usr/share/bash-completion/completions/glow.bash /usr/share/bash-completion/completions/
+COPY --from=bin ${OUT}/yazi/completions/ya.bash /usr/share/bash-completion/completions/
 # copy from golang layer
 COPY --from=go /go/bin/git-xlsx-textconv /usr/local/bin/
 # copy from rust layer
