@@ -45,14 +45,16 @@ RUN dpkg -i /session-manager-plugin.deb \
 ARG username=user
 # ARG homedir=/mnt/c/Users
 ARG homedir=/home
+ARG uid=1000
+ARG gid=1000
 RUN mkdir -p ${homedir}
 RUN groupadd -g 1000 ${username} \
     && useradd \
     -d ${homedir}/${username} \
-    -g 1000 \
+    -g ${gid} \
     -lMN \
     -s /bin/bash \
-    -u 1000 \
+    -u ${uid} \
     ${username} \
     && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g') \
     && chmod 0440 /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g')

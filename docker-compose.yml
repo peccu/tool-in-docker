@@ -69,6 +69,30 @@ services:
     # entrypoint: tail -f /dev/null
     # command: crond -f -l 8
     stop_signal: SIGKILL
+  tunnel:
+    container_name: tool-in-docker_tunnel
+    build:
+      context: build
+      dockerfile: Dockerfile.tunnel
+      args:
+        username: user
+        uid: 1000
+        gid: 1000
+        homedir: /mnt/c/Users
+    environment:
+      # local pc -- TUNNEL_LOCAL_PORT -- TUNNEL_BASTION_HOST -- TUNNEL_TARGET_HOST:TUNNEL_TARGET_PORT
+      - TUNNEL_LOCAL_PORT=9999
+      - TUNNEL_TARGET_HOST=internal-host
+      - TUNNEL_TARGET_PORT=8080
+      - TUNNEL_BASTION_HOST=bastion-host
+    volumes:
+      # for mount local path into container
+      - ~:$HOME
+    ports:
+      - 9999:9999
+    restart: always
+    networks:
+      - default
 
 # networks:
 #   gitea:
