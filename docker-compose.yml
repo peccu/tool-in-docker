@@ -72,8 +72,7 @@ services:
   tunnel:
     container_name: tool-in-docker_tunnel
     build:
-      context: build
-      dockerfile: Dockerfile.tunnel
+      context: build_tunnel
       args:
         username: user
         uid: 1000
