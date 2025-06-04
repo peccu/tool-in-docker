@@ -587,6 +587,16 @@ ADD ${GH}/${GU}/${RD}/v${V}/${A} /${A}
 RUN dpkg -i /${A} \
     && rm /${A}
 
+# git-credential-manager
+ENV V=2.6.0
+ENV A=gcm-linux_amd64.${V}.deb
+ENV GU=git-ecosystem/git-credential-manager
+ADD ${GH}/${GU}/${RD}/v${V}/${A} /${A}
+RUN dpkg -i /${A} \
+    && rm /${A} \
+    && git-credential-manager configure \
+    && git config --global credential.credentialStore plaintext
+
 # chezmoi : dotfiles manager
 RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 
