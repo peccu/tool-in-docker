@@ -2,7 +2,7 @@ services:
   app:
     container_name: tool-in-docker
     # build:
-    #   context: build
+    #   context: build_local
     #   args:
     #     username: user
     #     uid: 1000
