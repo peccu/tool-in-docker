@@ -25,6 +25,7 @@ services:
       - /:/mnt/host
       # for mount local path into container
       - ~:$HOME
+      - /home/user:/home/user
       # for chezmoi cd
       - /run/user/1000:/run/user/1000
       # tmux UID is defined in .env file
@@ -41,6 +42,9 @@ services:
       # Docker in Docker
       # test by curl --unix-socket /var/run/docker.sock http://localhost/version
       - /var/run/docker.sock:/var/run/docker.sock
+      # # for Colima
+      # # sudo ln -sf ~/.colima/default/docker.sock /var/run/docker.sock
+      # - ~/.colima/default/docker.sock:$HOME/.colima/default/docker.sock
     ports:
       - 8080:8080
     # working_dir: /root
