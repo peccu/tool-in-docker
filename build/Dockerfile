@@ -690,15 +690,17 @@ COPY --from=rust /usr/local/cargo/bin/the-way /usr/local/bin/
 
 # setup user environment
 ARG username=user
+ARG uid=1000
+ARG gid=1000
 ARG homedir=/mnt/c/Users
 RUN mkdir -p ${homedir}
 RUN groupadd -g 1000 ${username} \
     && useradd \
     -d ${homedir}/${username} \
-    -g 1000 \
+    -g ${gid} \
     -lMN \
     -s /usr/local/bin/bash \
-    -u 1000 \
+    -u ${uid} \
     ${username} \
     && echo "${username} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g') \
     && chmod 0440 /etc/sudoers.d/$(echo ${username} | sed 's/[.~]/_/g')

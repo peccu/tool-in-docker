@@ -4,7 +4,9 @@ services:
     # build:
     #   context: build
     #   args:
-    #     username: peccu
+    #     username: user
+    #     uid: 1000
+    #     gid: 1000
     #     homedir: /mnt/c/Users
     image: peccu/tool-in-docker:emacs-x
     environment:
@@ -16,7 +18,8 @@ services:
       - XDG_RUNTIME_DIR
       # PulseAudio
       - PULSE_SERVER
-      # # Docker in Docker : this is default sock
+      # Docker in Docker : this is default sock
+      # but colima overrides it so this env var is needed
       # - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - /:/mnt/host
