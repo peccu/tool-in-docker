@@ -70,6 +70,8 @@ services:
     # command: crond -f -l 8
     stop_signal: SIGKILL
   tunnel:
+    profiles:
+      - tunnel
     container_name: tool-in-docker_tunnel
     build:
       context: build_tunnel
